@@ -89,6 +89,7 @@ class PhaseModulatorPanel(wx.Panel):
         self.ax2 = self.figure.add_subplot(212)
 
         self.temporal, = self.ax1.plot([], [], linestyle='-')
+        self.temporal_2, = self.ax1.plot([], [], linestyle='--')
         self.spectral, = self.ax2.plot([], [], color='#C02942')
 
         # BINDINGS =====================================================================================================
@@ -353,8 +354,10 @@ class PhaseModulatorPanel(wx.Panel):
         # TEMPORAL -----------------------------------------------------------------------------------------------------
         xt = params['xt']
         yt = params['yt']
+        ym = params['ym']
 
         self.temporal.set_data(xt, yt)
+        self.temporal_2.set_data(xt, ym)
 
         xt_start = params['xt_start']
         xt_end = params['xt_end']

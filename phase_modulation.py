@@ -290,8 +290,9 @@ class PhaseModulator:
         runtime = data['runtime']
 
         # TEMPORAL -----------------------------------------------------------------------------------------------------
-        xt = data['x'] * 1e3
+        xt = data['x']
         yt = data['y']
+        ym = np.sin(2*np.pi*fm*xt)
 
         try:
             x_periods = 4
@@ -312,7 +313,7 @@ class PhaseModulator:
         xf_start = max(0, fc / 2) / 1000
         xf_end = min(fc * 1.5, Fs / 2 - Fs / N)  # Does not exceed max bin
 
-        params = {'xt': xt, 'yt': yt,
+        params = {'xt': xt*1000, 'yt': yt, 'ym': ym,
                   'xt_start': 0, 'xt_end': 1e3 * xt_end,
                   'yt_start': -ylimit, 'yt_end': ylimit + yt_tick, 'yt_tick': yt_tick,
 
