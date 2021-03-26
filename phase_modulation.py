@@ -229,9 +229,9 @@ class PhaseModulator:
 
         if modulation_type == 0:
             # amplitude modulation -------------------------------------------------------------------------------------
-            carrier_yt = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt)
-            message_yt = modulation_index * np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
-            yt = carrier_yt * message_yt
+            ct = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt)
+            mt = modulation_index * np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
+            yt = ct * mt
 
             bw = 2*message_frequency
 
@@ -241,10 +241,11 @@ class PhaseModulator:
             kf = 1  # frequency deviation constant in rad/volt
 
             wm = 2.0 * np.pi * message_frequency
+            pif = np.pi * message_frequency
             Am = (modulation_index*wm)/kf
-            mt = modulation_index * np.cos(wm * xt + np.deg2rad(message_phase))
+            mt = np.cos(wm * xt + np.deg2rad(message_phase))
 
-            yt_phase = (kf*Am/wm) * np.sin(wm*xt + np.deg2rad(message_phase))
+            yt_phase = kf*Am/(pif) * (np.sin(pif*xt) * np.cos(pif*xt + message_phase))
             yt = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + yt_phase)
 
             freq_deviation = kf*modulation_index  # frequency deviation
@@ -255,8 +256,8 @@ class PhaseModulator:
             # phase modulation -------------------------------------------------------------------------------------
             # In PM, the angle is directly proportional to m(t)
             kp = 1  # frequency deviation constant in rad/volt
-            mt = kp * modulation_index * np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
-            yt = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + mt)
+            mt = np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
+            yt = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + kp * modulation_index * mt)
 
             freq_deviation = kp * modulation_index
             beta = freq_deviation/message_frequency  # modulation index
@@ -265,14 +266,14 @@ class PhaseModulator:
         else:
             raise ValueError("Invalid modulation type selected!")
 
-        self.fft(xt, yt, runtime, bw, carrier_frequency, message_frequency, sample_rate, N, WINDOW_FUNC)
+        self.fft(xt, yt, mt, runtime, bw, carrier_frequency, message_frequency, sample_rate, N, WINDOW_FUNC)
 
-    def fft(self, xt, yt, runtime, bw, fc, fm, Fs, N, WINDOW_FUNC='blackman'):
+    def fft(self, xt, yt, mt, runtime, bw, fc, fm, Fs, N, WINDOW_FUNC='blackman'):
         yrms = rms_flat(yt)
 
         # FFT ==========================================================================================================
         xf_fft, yf_fft, xf_rfft, yf_rfft = windowed_fft(yt, Fs, N, WINDOW_FUNC)
-        data = {'x': xt, 'y': yt, 'xf': xf_rfft, 'ywf': yf_rfft, 'RMS': yrms, 'N': N, 'runtime': runtime, 'Fs': Fs,
+        data = {'x': xt, 'y': yt, 'mt': mt, 'xf': xf_rfft, 'ywf': yf_rfft, 'RMS': yrms, 'N': N, 'runtime': runtime, 'Fs': Fs,
                 'fc': fc, 'fm': fm}
 
         # save measurement to csv --------------------------------------------------------------------------------------
@@ -292,7 +293,7 @@ class PhaseModulator:
         # TEMPORAL -----------------------------------------------------------------------------------------------------
         xt = data['x']
         yt = data['y']
-        ym = np.sin(2*np.pi*fm*xt)
+        mt = data['mt']
 
         try:
             x_periods = 4
@@ -313,7 +314,7 @@ class PhaseModulator:
         xf_start = max(0, fc / 2) / 1000
         xf_end = min(fc * 1.5, Fs / 2 - Fs / N)  # Does not exceed max bin
 
-        params = {'xt': xt*1000, 'yt': yt, 'ym': ym,
+        params = {'xt': xt*1000, 'yt': yt, 'mt': mt,
                   'xt_start': 0, 'xt_end': 1e3 * xt_end,
                   'yt_start': -ylimit, 'yt_end': ylimit + yt_tick, 'yt_tick': yt_tick,
 

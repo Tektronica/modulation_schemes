@@ -354,10 +354,10 @@ class PhaseModulatorPanel(wx.Panel):
         # TEMPORAL -----------------------------------------------------------------------------------------------------
         xt = params['xt']
         yt = params['yt']
-        ym = params['ym']
+        mt = params['mt']
 
         self.temporal.set_data(xt, yt)
-        self.temporal_2.set_data(xt, ym)
+        self.temporal_2.set_data(xt, mt)
 
         xt_start = params['xt_start']
         xt_end = params['xt_end']
