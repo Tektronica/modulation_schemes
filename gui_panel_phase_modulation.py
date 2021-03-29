@@ -129,7 +129,7 @@ class PhaseModulatorPanel(wx.Panel):
 
         # LEFT PANEL ===================================================================================================
         # TITLE --------------------------------------------------------------------------------------------------------
-        label_1 = wx.StaticText(self.left_panel, wx.ID_ANY, "PHASE MODULATION")
+        label_1 = wx.StaticText(self.left_panel, wx.ID_ANY, "MODULATION SCHEMEs")
         label_1.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
         grid_sizer_left_panel.Add(label_1, (0, 0), (1, 2), 0, 0)
 
@@ -365,8 +365,8 @@ class PhaseModulatorPanel(wx.Panel):
         yt_end = params['yt_end']
         yt_tick = params['yt_tick']
 
-        self.ax1.set_xlim(xmin=xt_start, xmax=xt_end)
-        self.ax1.set_yticks(np.arange(yt_start, yt_end, yt_tick))
+        self.ax1.set_xlim(left=xt_start, right=xt_end)
+        # self.ax1.set_yticks(np.arange(yt_start, yt_end, yt_tick))
 
         # SPECTRAL -----------------------------------------------------------------------------------------------------
         xf = params['xf']
@@ -379,8 +379,8 @@ class PhaseModulatorPanel(wx.Panel):
         yf_start = params['yf_start']
         yf_end = params['yf_end']
 
-        self.ax2.set_xlim(xf_start, xf_end)
-        self.ax2.set_ylim(yf_start, yf_end)
+        self.ax2.set_xlim(left=xf_start, right=xf_end)
+        self.ax2.set_ylim(bottom=yf_start, top=yf_end)
 
         # REDRAW PLOT --------------------------------------------------------------------------------------------------
         self.plot_redraw()
@@ -395,6 +395,13 @@ class PhaseModulatorPanel(wx.Panel):
             raise
         self.ax1.margins(x=0)
         self.ax1.autoscale(axis='y')
+
+        # ht = -0.05
+        # w=20
+        # self.ax2.annotate("", xy=(0, ht), xytext=(w, ht), textcoords=self.ax2.transData, arrowprops=dict(arrowstyle='<->'))
+        # self.ax2.annotate("", xy=(0, ht), xytext=(w, ht), textcoords=self.ax2.transData, arrowprops=dict(arrowstyle='|-|'))
+        # bbox = dict(fc="white", ec="none")
+        # self.ax2.text(w / 2, ht, "L=200 m", ha="center", va="center", bbox=bbox)
 
         # UPDATE PLOT FEATURES -----------------------------------------------------------------------------------------
         self.figure.tight_layout()

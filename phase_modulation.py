@@ -76,6 +76,7 @@ def windowed_fft(yt, Fs, N, windfunc='blackman'):
     # remove DC offset
     yt -= np.mean(yt)
 
+    # Calculate windowing function and its length ----------------------------------------------------------------------
     if windfunc == 'bartlett':
         w = np.bartlett(N)
     elif windfunc == 'hanning':
@@ -87,22 +88,30 @@ def windowed_fft(yt, Fs, N, windfunc='blackman'):
     else:
         w = np.kaiser(N)
 
-    # https://numpy.org/doc/stable/reference/generated/numpy.fft.rfft.html
-    # function does not compute the negative frequency terms
-    yf_fft = np.fft.fft(yt * w)
+    # Calculate amplitude correction factor after windowing ------------------------------------------------------------
+    # https://stackoverflow.com/q/47904399/3382269
+    amplitude_correction_factor = 1 / np.mean(w)
 
+    # Calculate the length of the FFT ----------------------------------------------------------------------------------
     if (N % 2) == 0:
         # for even values of N: length is (N / 2) + 1
-        length = int(N / 2) + 1
+        fft_length = int(N / 2) + 1
     else:
         # for odd values of N: length is (N + 1) / 2
-        length = int((N + 2) / 2)
+        fft_length = int((N + 2) / 2)
 
-    yf_rfft = yf_fft[:length]
+    """
+    Compute the FFT of the signal Divide by the length of the FFT to recover the original amplitude. Note dividing 
+    alternatively by N samples of the time-series data splits the power between the positive and negative sides. 
+    However, we are only looking at one side of the FFT.
+    """
+    yf_fft = np.fft.fft(yt * w) / fft_length
+
+    yf_rfft = yf_fft[:fft_length] * amplitude_correction_factor
     xf_fft = np.linspace(0.0, Fs, N)
-    xf_rfft = np.linspace(0.0, Fs / 2, length)
+    xf_rfft = np.linspace(0.0, Fs / 2, fft_length)
 
-    return xf_fft, yf_fft, xf_rfft, yf_rfft
+    return xf_fft, yf_fft, xf_rfft, yf_rfft, fft_length
 
 
 class PhaseModulator:
@@ -231,9 +240,9 @@ class PhaseModulator:
             # amplitude modulation -------------------------------------------------------------------------------------
             ct = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt)
             mt = modulation_index * np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
-            yt = ct * mt
+            st = ct * mt
 
-            bw = 2*message_frequency
+            bw = 2 * message_frequency
 
         elif modulation_type == 1:
             # frequency modulation -------------------------------------------------------------------------------------
@@ -242,43 +251,45 @@ class PhaseModulator:
 
             wm = 2.0 * np.pi * message_frequency
             pif = np.pi * message_frequency
-            Am = (modulation_index*wm)/kf
+            Am = (modulation_index * wm) / kf
             mt = np.cos(wm * xt + np.deg2rad(message_phase))
 
-            yt_phase = kf*Am/(pif) * (np.sin(pif*xt) * np.cos(pif*xt + message_phase))
-            yt = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + yt_phase)
+            yt_phase = kf * Am / (pif) * (np.sin(pif * xt) * np.cos(pif * xt + message_phase))
+            st = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + yt_phase)
 
-            freq_deviation = kf*modulation_index  # frequency deviation
-            beta = freq_deviation/message_frequency  # modulation index
-            bw = 2*(beta + 1) * message_frequency
+            freq_deviation = kf * modulation_index  # frequency deviation
+            beta = freq_deviation / message_frequency  # modulation index
+
+            bw = 2 * message_frequency * (modulation_index + 1)
 
         elif modulation_type == 2:
             # phase modulation -------------------------------------------------------------------------------------
             # In PM, the angle is directly proportional to m(t)
             kp = 1  # frequency deviation constant in rad/volt
             mt = np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
-            yt = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + kp * modulation_index * mt)
+            st = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + kp * modulation_index * mt)
 
             freq_deviation = kp * modulation_index
-            beta = freq_deviation/message_frequency  # modulation index
-            bw = 2*(beta + 1) * message_frequency
+            beta = freq_deviation / message_frequency  # modulation index
+
+            bw = 2 * message_frequency * (modulation_index + 1)
 
         else:
             raise ValueError("Invalid modulation type selected!")
 
-        self.fft(xt, yt, mt, runtime, bw, carrier_frequency, message_frequency, sample_rate, N, WINDOW_FUNC)
+        self.fft(xt, st, mt, runtime, bw, carrier_frequency, message_frequency, sample_rate, N, WINDOW_FUNC)
 
     def fft(self, xt, yt, mt, runtime, bw, fc, fm, Fs, N, WINDOW_FUNC='blackman'):
         yrms = rms_flat(yt)
 
         # FFT ==========================================================================================================
-        xf_fft, yf_fft, xf_rfft, yf_rfft = windowed_fft(yt, Fs, N, WINDOW_FUNC)
-        data = {'x': xt, 'y': yt, 'mt': mt, 'xf': xf_rfft, 'ywf': yf_rfft, 'RMS': yrms, 'N': N, 'runtime': runtime, 'Fs': Fs,
-                'fc': fc, 'fm': fm}
+        xf_fft, yf_fft, xf_rfft, yf_rfft, fft_length = windowed_fft(yt, Fs, N, WINDOW_FUNC)
+        data = {'x': xt, 'y': yt, 'bw': bw, 'mt': mt, 'xf': xf_rfft, 'ywf': yf_rfft, 'fft_length': fft_length,
+                'RMS': yrms, 'N': N, 'runtime': runtime, 'Fs': Fs, 'fc': fc, 'fm': fm}
 
         # save measurement to csv --------------------------------------------------------------------------------------
         header = ['xt', 'yt', 'xf', 'yf']
-        write_to_csv('results/history', 'phase_modulation', header, xt, yt, xf_fft, yf_fft)
+        write_to_csv('results/history', 'modulation_schemes', header, xt, yt, xf_fft, yf_fft)
 
         # plot and report ----------------------------------------------------------------------------------------------
         report = {'yrms': yrms, 'bw': bw}
@@ -294,6 +305,7 @@ class PhaseModulator:
         xt = data['x']
         yt = data['y']
         mt = data['mt']
+        fft_length = data['fft_length']
 
         try:
             x_periods = 4
@@ -307,20 +319,34 @@ class PhaseModulator:
         # SPECTRAL -----------------------------------------------------------------------------------------------------
         xf = data['xf']
         yf = data['ywf']
+        bw = data['bw']
+        bw_margin = 3*fm
+
         Fs = data['Fs']
         N = data['N']
         yrms = data['RMS']
 
-        xf_start = max(0, fc / 2) / 1000
-        xf_end = min(fc * 1.5, Fs / 2 - Fs / N)  # Does not exceed max bin
+        freq_end = Fs * ((fft_length-1) / N)
+        xf_start = max((fc - bw / 2) - bw_margin, 0)
+        xf_end = min(fc + bw / 2 + bw_margin, freq_end)  # Does not exceed max bin
 
-        params = {'xt': xt*1000, 'yt': yt, 'mt': mt,
+        dB = False
+        if dB:
+            # decibel
+            yf_start = -250
+            yf_end = 0
+        else:
+            # linear
+            yf_start = -0.2
+            yf_end = abs(max(yf)) + 0.2  # https://stackoverflow.com/a/66805331/3382269
+
+        params = {'xt': xt * 1000, 'yt': yt, 'mt': mt,
                   'xt_start': 0, 'xt_end': 1e3 * xt_end,
                   'yt_start': -ylimit, 'yt_end': ylimit + yt_tick, 'yt_tick': yt_tick,
 
-                  'xf': xf[0:N] / 1000, 'yf': 20 * np.log10(2 * np.abs(yf[0:N] / (yrms * N))),
-                  'xf_start': xf_start, 'xf_end': xf_end / 1000,
-                  'yf_start': -250, 'yf_end': 0
+                  'xf': xf[:fft_length] / 1000, 'yf': np.abs(yf[:fft_length]),
+                  'xf_start': xf_start / 1000, 'xf_end': xf_end / 1000,
+                  'yf_start': yf_start, 'yf_end': yf_end
                   }
-
+        # k = 20*np.log10(2 * np.abs(yf[0:N] / (yrms * N)))
         self.frame.plot(params)
