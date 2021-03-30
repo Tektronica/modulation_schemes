@@ -74,7 +74,7 @@ def getWindowLength(f0=10e3, fs=2.5e6, windfunc='blackman', error=0.1):
 
 def windowed_fft(yt, Fs, N, windfunc='blackman'):
     # remove DC offset
-    yt -= np.mean(yt)
+    # yt -= np.mean(yt)
 
     # Calculate windowing function and its length ----------------------------------------------------------------------
     if windfunc == 'bartlett':
@@ -114,7 +114,7 @@ def windowed_fft(yt, Fs, N, windfunc='blackman'):
     return xf_fft, yf_fft, xf_rfft, yf_rfft, fft_length
 
 
-class PhaseModulator:
+class Modulators:
     # ------------------------------------------------------------------------------------------------------------------
     def __init__(self, parent):
         self.frame = parent
@@ -220,6 +220,7 @@ class PhaseModulator:
         sample_rate = self.params['sample_rate']
         main_lobe_error = self.params['main_lobe_error']
         modulation_type = self.params['modulation_type']
+        waveform_type = self.params['waveform_type']
         carrier_amplitude = self.params['carrier_amplitude']
         carrier_frequency = self.params['carrier_frequency']  # fc
         modulation_index = self.params['modulation_index']
@@ -230,8 +231,39 @@ class PhaseModulator:
         N = getWindowLength(f0=message_frequency, fs=sample_rate, windfunc=WINDOW_FUNC, error=main_lobe_error)
 
         runtime = N / sample_rate
-        xt = np.arange(0, N, 1) / sample_rate
-        # xt = np.linspace(-np.pi, np.pi, N)
+        N_range = np.arange(0, N, 1)
+        xt = N_range / sample_rate
+
+        # Compute message ----------------------------------------------------------------------------------------------
+        if waveform_type == 'sine':
+            # message signal
+            mt = np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
+            # integral of message signal
+            mt_ = np.sin(np.pi * message_frequency * xt) * np.cos(np.pi * message_frequency * xt + message_phase)
+
+        elif waveform_type == 'triangle':
+            # https://en.wikipedia.org/wiki/Triangle_wave#Modulo_operation
+            p = sample_rate / message_frequency
+
+            # message signal (modulo operation)
+            applied_phase_shift = N_range + int(p * message_phase/360)
+            mt = 4 / p * np.abs((((applied_phase_shift - p / 4) % p) + p) % p - p / 2) - 1
+
+            # integral of message signal
+            mt_ = np.sin(np.pi * message_frequency * xt) * np.cos(np.pi * message_frequency * xt + message_phase)
+
+        elif waveform_type == 'square':
+            p = sample_rate / message_frequency
+            applied_phase_shift = N_range + int(p * message_phase/360)
+
+            # message signal
+            mt = np.where((((N_range % p) + p) % p) < p/2, 1, 0)
+
+            # integral of message signal (square wave integral is a triangle wave (modulo operation) with 90 phase lag)
+            corrected_phase_shift = applied_phase_shift + int(p * 90/360)
+            mt_ = 4 / p * np.abs((((corrected_phase_shift - p / 4) % p) + p) % p - p / 2) - 1
+        else:
+            raise ValueError("Invalid waveform type selected!")
 
         # waveform data ------------------------------------------------------------------------------------------------
         # https://user.eng.umd.edu/~tretter/commlab/c6713slides/ch8.pdf
@@ -239,7 +271,6 @@ class PhaseModulator:
         if modulation_type == 0:
             # amplitude modulation -------------------------------------------------------------------------------------
             ct = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt)
-            mt = modulation_index * np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
             st = ct * mt
 
             bw = 2 * message_frequency
@@ -250,12 +281,10 @@ class PhaseModulator:
             kf = 1  # frequency deviation constant in rad/volt
 
             wm = 2.0 * np.pi * message_frequency
-            pif = np.pi * message_frequency
+            pi_f = np.pi * message_frequency
             Am = (modulation_index * wm) / kf
-            mt = np.cos(wm * xt + np.deg2rad(message_phase))
 
-            yt_phase = kf * Am / (pif) * (np.sin(pif * xt) * np.cos(pif * xt + message_phase))
-            st = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + yt_phase)
+            st = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + kf * Am / pi_f * mt_)
 
             freq_deviation = kf * modulation_index  # frequency deviation
             beta = freq_deviation / message_frequency  # modulation index
@@ -266,7 +295,7 @@ class PhaseModulator:
             # phase modulation -------------------------------------------------------------------------------------
             # In PM, the angle is directly proportional to m(t)
             kp = 1  # frequency deviation constant in rad/volt
-            mt = np.cos(2 * np.pi * message_frequency * xt + np.deg2rad(message_phase))
+
             st = carrier_amplitude * np.cos(2 * np.pi * carrier_frequency * xt + kp * modulation_index * mt)
 
             freq_deviation = kp * modulation_index
@@ -309,7 +338,8 @@ class PhaseModulator:
 
         try:
             x_periods = 4
-            xt_end = min((x_periods / fm), runtime)
+            xt_left = 0
+            xt_right = min((x_periods / fm), runtime)
         except ZeroDivisionError:
             raise ValueError("Carrier frequency must be non-zero!")
 
@@ -327,26 +357,42 @@ class PhaseModulator:
         yrms = data['RMS']
 
         freq_end = Fs * ((fft_length-1) / N)
-        xf_start = max((fc - bw / 2) - bw_margin, 0)
-        xf_end = min(fc + bw / 2 + bw_margin, freq_end)  # Does not exceed max bin
+        xf_left = max((fc - bw / 2) - bw_margin, 0)
+        xf_right = min(fc + bw / 2 + bw_margin, freq_end)  # Does not exceed max bin
 
         dB = False
         if dB:
             # decibel
-            yf_start = -250
-            yf_end = 0
+            yf_btm = -250
+            yf_top = 0
+            yf_tick = 50
+            yf_ticks = np.arange(yf_btm, yf_top, yf_tick)
         else:
             # linear
-            yf_start = -0.2
-            yf_end = abs(max(yf)) + 0.2  # https://stackoverflow.com/a/66805331/3382269
+            n_tick = 5
+            yf_data_peak = round(abs(max(yf)), 1)
+            yf_tick = round(np.ceil((yf_data_peak / (n_tick - 2)) * 10) / 10, 1)
+
+            # https://stackoverflow.com/a/66805331/3382269
+            yf_btm = -yf_tick
+            yf_top = round((n_tick - 2) * yf_tick, 1)
+            yf_ticks = np.arange(yf_btm, yf_top + yf_tick, yf_tick)
+
+
+        bw_text = f"BW: {round(bw / 1000, 2)}kHz"
+        dim_left = fc - bw / 2
+        dim_right = fc + bw / 2
+        dim_height = yf_btm / 2
 
         params = {'xt': xt * 1000, 'yt': yt, 'mt': mt,
-                  'xt_start': 0, 'xt_end': 1e3 * xt_end,
-                  'yt_start': -ylimit, 'yt_end': ylimit + yt_tick, 'yt_tick': yt_tick,
+                  'xt_left': xt_left, 'xt_right': 1e3 * xt_right,
+                  'yt_btm': -ylimit, 'yt_top': ylimit + yt_tick, 'yt_tick': yt_tick,
 
-                  'xf': xf[:fft_length] / 1000, 'yf': np.abs(yf[:fft_length]),
-                  'xf_start': xf_start / 1000, 'xf_end': xf_end / 1000,
-                  'yf_start': yf_start, 'yf_end': yf_end
+                  'xf': xf[:fft_length] / 1000, 'yf': np.abs(yf[:fft_length]), 'bw': bw / 1000,
+                  'xf_left': xf_left / 1000, 'xf_right': xf_right / 1000,
+                  'yf_btm': yf_btm, 'yf_top': yf_top, 'yf_ticks': yf_ticks,
+                  'dim_left': dim_left / 1000, 'dim_right': dim_right / 1000, 'dim_height': dim_height,
+                  'bw_text': bw_text
                   }
-        # k = 20*np.log10(2 * np.abs(yf[0:N] / (yrms * N)))
+
         self.frame.plot(params)

@@ -1,4 +1,4 @@
-from phase_modulation import PhaseModulator as pm
+from phase_modulation import Modulators as pm
 
 import numpy as np
 import threading
@@ -52,6 +52,9 @@ class PhaseModulatorPanel(wx.Panel):
         self.text_carrier_amplitude = wx.TextCtrl(self.left_panel, wx.ID_ANY, "1")
         self.text_carrier_frequency = wx.TextCtrl(self.left_panel, wx.ID_ANY, "1e3")
 
+        self.combo_waveform = wx.ComboBox(self.left_panel, wx.ID_ANY,
+                                          choices=["Sine", "Triangle", "Square"],
+                                          style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.combo_modulation = wx.ComboBox(self.left_panel, wx.ID_ANY,
                                             choices=["Amplitude", "Frequency", "Phase"],
                                             style=wx.CB_DROPDOWN | wx.CB_READONLY)
@@ -77,20 +80,24 @@ class PhaseModulatorPanel(wx.Panel):
         self.flag_complete = True  # Flag indicates any active threads (False) or thread completed (True)
         self.t = threading.Thread()
         self.pm = pm(self)
-        self.user_input = {'mode': 0,
-                           'source': 0,
-                           'amplitude': '',
-                           'rms': 0,
-                           'frequency': '',
-                           'error': 0,
-                           'filter': 0
-                           }
+        self.user_input = {}
+
+        # Plot objects -------------------------------------------------------------------------------------------------
         self.ax1 = self.figure.add_subplot(211)
         self.ax2 = self.figure.add_subplot(212)
 
         self.temporal, = self.ax1.plot([], [], linestyle='-')
         self.temporal_2, = self.ax1.plot([], [], linestyle='--')
         self.spectral, = self.ax2.plot([], [], color='#C02942')
+
+        # Plot Annotations ---------------------------------------------------------------------------------------------
+        # https://stackoverflow.com/a/38677732
+        self.arrow_dim_obj = self.ax2.annotate("", xy=(0, 0), xytext=(0, 0),
+                                               textcoords=self.ax2.transData, arrowprops=dict(arrowstyle='<->'))
+        self.bar_dim_obj = self.ax2.annotate("", xy=(0, 0), xytext=(0, 0),
+                                             textcoords=self.ax2.transData, arrowprops=dict(arrowstyle='|-|'))
+        bbox = dict(fc="white", ec="none")
+        self.dim_text = self.ax2.text(0, 0, "", ha="center", va="center", bbox=bbox)
 
         # BINDINGS =====================================================================================================
         # Run Measurement (start subprocess) ---------------------------------------------------------------------------
@@ -115,6 +122,7 @@ class PhaseModulatorPanel(wx.Panel):
         # self.left_sub_panel.SetBackgroundColour(wx.Colour(255, 0, 255))
         self.plot_panel.SetMinSize((700, 502))
         self.combo_modulation.SetSelection(0)
+        self.combo_waveform.SetSelection(0)
         self.canvas.SetMinSize((700, 490))
 
         self.combo_mode.SetSelection(0)
@@ -129,7 +137,7 @@ class PhaseModulatorPanel(wx.Panel):
 
         # LEFT PANEL ===================================================================================================
         # TITLE --------------------------------------------------------------------------------------------------------
-        label_1 = wx.StaticText(self.left_panel, wx.ID_ANY, "MODULATION SCHEMEs")
+        label_1 = wx.StaticText(self.left_panel, wx.ID_ANY, "MODULATION SCHEMES")
         label_1.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
         grid_sizer_left_panel.Add(label_1, (0, 0), (1, 2), 0, 0)
 
@@ -190,47 +198,51 @@ class PhaseModulatorPanel(wx.Panel):
         grid_sizer_left_panel.Add(label_modulation, (12, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
         grid_sizer_left_panel.Add(self.combo_modulation, (12, 1), (1, 1), wx.EXPAND | wx.BOTTOM | wx.LEFT, 5)
 
+        label_waveform = wx.StaticText(self.left_panel, wx.ID_ANY, "Waveform:")
+        grid_sizer_left_panel.Add(label_waveform, (13, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
+        grid_sizer_left_panel.Add(self.combo_waveform, (13, 1), (1, 1), wx.EXPAND | wx.BOTTOM | wx.LEFT, 5)
+
         label_modulation_index = wx.StaticText(self.left_panel, wx.ID_ANY, "Modulation Index:")
-        grid_sizer_left_panel.Add(label_modulation_index, (13, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
-        grid_sizer_left_panel.Add(self.text_modulation_index, (13, 1), (1, 1), wx.BOTTOM | wx.LEFT, 5)
+        grid_sizer_left_panel.Add(label_modulation_index, (14, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
+        grid_sizer_left_panel.Add(self.text_modulation_index, (14, 1), (1, 1), wx.BOTTOM | wx.LEFT, 5)
 
         label_message_frequency = wx.StaticText(self.left_panel, wx.ID_ANY, "Frequency:")
-        grid_sizer_left_panel.Add(label_message_frequency, (14, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
-        grid_sizer_left_panel.Add(self.text_message_frequency, (14, 1), (1, 1), wx.BOTTOM | wx.LEFT, 5)
+        grid_sizer_left_panel.Add(label_message_frequency, (15, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
+        grid_sizer_left_panel.Add(self.text_message_frequency, (15, 1), (1, 1), wx.BOTTOM | wx.LEFT, 5)
         label_Hz = wx.StaticText(self.left_panel, wx.ID_ANY, "(Hz)")
-        grid_sizer_left_panel.Add(label_Hz, (14, 2), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.LEFT, 5)
+        grid_sizer_left_panel.Add(label_Hz, (15, 2), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.LEFT, 5)
 
         label_message_phase = wx.StaticText(self.left_panel, wx.ID_ANY, "Phase:")
-        grid_sizer_left_panel.Add(label_message_phase, (15, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
-        grid_sizer_left_panel.Add(self.text_message_phase, (15, 1), (1, 1), wx.LEFT, 5)
+        grid_sizer_left_panel.Add(label_message_phase, (16, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
+        grid_sizer_left_panel.Add(self.text_message_phase, (16, 1), (1, 1), wx.LEFT, 5)
         label_deg = wx.StaticText(self.left_panel, wx.ID_ANY, "(deg)")
-        grid_sizer_left_panel.Add(label_deg, (15, 2), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
+        grid_sizer_left_panel.Add(label_deg, (16, 2), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
         # METRICS (RESULTS) --------------------------------------------------------------------------------------------
         label_source = wx.StaticText(self.left_panel, wx.ID_ANY, "Metrics")
         label_source.SetFont(wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
-        grid_sizer_left_panel.Add(label_source, (16, 0), (1, 1), wx.TOP, 10)
+        grid_sizer_left_panel.Add(label_source, (17, 0), (1, 1), wx.TOP, 10)
 
         static_line_2 = wx.StaticLine(self.left_panel, wx.ID_ANY)
         static_line_2.SetMinSize((300, 2))
-        grid_sizer_left_panel.Add(static_line_2, (17, 0), (1, 3), wx.BOTTOM | wx.RIGHT | wx.TOP, 5)
+        grid_sizer_left_panel.Add(static_line_2, (18, 0), (1, 3), wx.BOTTOM | wx.RIGHT | wx.TOP, 5)
 
         label_report_rms = wx.StaticText(self.left_panel, wx.ID_ANY, "RMS:")
-        grid_sizer_left_panel.Add(label_report_rms, (18, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
-        grid_sizer_left_panel.Add(self.text_report_rms, (18, 1), (1, 1), wx.BOTTOM | wx.LEFT, 5)
+        grid_sizer_left_panel.Add(label_report_rms, (19, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
+        grid_sizer_left_panel.Add(self.text_report_rms, (19, 1), (1, 1), wx.BOTTOM | wx.LEFT, 5)
 
         label_report_bw = wx.StaticText(self.left_panel, wx.ID_ANY, "BW:")
-        grid_sizer_left_panel.Add(label_report_bw, (19, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
-        grid_sizer_left_panel.Add(self.text_report_bw, (19, 1), (1, 1), wx.BOTTOM | wx.LEFT, 5)
+        grid_sizer_left_panel.Add(label_report_bw, (20, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM, 5)
+        grid_sizer_left_panel.Add(self.text_report_bw, (20, 1), (1, 1), wx.BOTTOM | wx.LEFT, 5)
 
         # BUTTONS ------------------------------------------------------------------------------------------------------
         static_line_4 = wx.StaticLine(self.left_panel, wx.ID_ANY)
         static_line_4.SetMinSize((300, 2))
-        grid_sizer_left_panel.Add(static_line_4, (20, 0), (1, 3), wx.BOTTOM | wx.RIGHT | wx.TOP, 5)
+        grid_sizer_left_panel.Add(static_line_4, (21, 0), (1, 3), wx.BOTTOM | wx.RIGHT | wx.TOP, 5)
 
         grid_sizer_left_sub_btn_row.Add(self.btn_start, (0, 0), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
         grid_sizer_left_sub_btn_row.Add(self.combo_mode, (0, 1), (1, 1), wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
-        grid_sizer_left_panel.Add(grid_sizer_left_sub_btn_row, (21, 0), (1, 3), wx.ALIGN_TOP | wx.BOTTOM, 13)
+        grid_sizer_left_panel.Add(grid_sizer_left_sub_btn_row, (22, 0), (1, 3), wx.ALIGN_TOP | wx.BOTTOM, 13)
 
         self.left_panel.SetSizer(grid_sizer_left_panel)
 
@@ -297,6 +309,8 @@ class PhaseModulatorPanel(wx.Panel):
         sample_rate = to_float(self.text_sample_rate.GetValue(), property="sample rate")
         main_lobe_error = to_float(self.text_mainlobe_error.GetValue(), property="main lobe error")
         modulation_type = self.combo_modulation.GetSelection()
+        waveform_lookup = {0: 'sine', 1: 'triangle', 2: 'square'}
+        waveform_type = waveform_lookup[self.combo_waveform.GetSelection()]
         carrier_amplitude = to_float(self.text_carrier_amplitude.GetValue(), property="carrier amplitude")
         carrier_frequency = to_float(self.text_carrier_frequency.GetValue(), property="carrier frequency")
         modulation_index = to_float(self.text_modulation_index.GetValue(), property="modulation index")
@@ -306,6 +320,7 @@ class PhaseModulatorPanel(wx.Panel):
         self.user_input = {'mode': mode,
                            'sample_rate': sample_rate,
                            'main_lobe_error': main_lobe_error,
+                           'waveform_type': waveform_type,
                            'modulation_type': modulation_type,
                            'carrier_amplitude': carrier_amplitude,
                            'carrier_frequency': carrier_frequency,
@@ -359,14 +374,14 @@ class PhaseModulatorPanel(wx.Panel):
         self.temporal.set_data(xt, yt)
         self.temporal_2.set_data(xt, mt)
 
-        xt_start = params['xt_start']
-        xt_end = params['xt_end']
-        yt_start = params['yt_start']
-        yt_end = params['yt_end']
+        xt_left = params['xt_left']
+        xt_right = params['xt_right']
+        yt_btm = params['yt_btm']
+        yt_top = params['yt_top']
         yt_tick = params['yt_tick']
 
-        self.ax1.set_xlim(left=xt_start, right=xt_end)
-        # self.ax1.set_yticks(np.arange(yt_start, yt_end, yt_tick))
+        self.ax1.set_xlim(left=xt_left, right=xt_right)
+        # self.ax1.set_yticks(np.arange(yt_btm, yt_top, yt_tick))
 
         # SPECTRAL -----------------------------------------------------------------------------------------------------
         xf = params['xf']
@@ -374,13 +389,36 @@ class PhaseModulatorPanel(wx.Panel):
 
         self.spectral.set_data(xf, yf)
 
-        xf_start = params['xf_start']
-        xf_end = params['xf_end']
-        yf_start = params['yf_start']
-        yf_end = params['yf_end']
+        xf_left = params['xf_left']
+        xf_right = params['xf_right']
+        yf_btm = params['yf_btm']
+        yf_top = params['yf_top']
+        yf_ticks = params['yf_ticks']
 
-        self.ax2.set_xlim(left=xf_start, right=xf_end)
-        self.ax2.set_ylim(bottom=yf_start, top=yf_end)
+        self.ax2.set_xlim(left=xf_left, right=xf_right)
+        self.ax2.set_ylim(bottom=yf_btm, top=yf_top)
+        self.ax2.set_yticks(yf_ticks)
+
+        # Annotations --------------------------------------------------------------------------------------------------
+        dim_height = params['dim_height']
+        dim_left = params['dim_left']
+        dim_right = params['dim_right']
+        bw = params['bw']
+
+        # Arrow dimension line update ----------------------------------------------------------------------------------
+        # https://stackoverflow.com/a/48684902 -------------------------------------------------------------------------
+        self.arrow_dim_obj.xy = (dim_left, dim_height)
+        self.arrow_dim_obj.set_position((dim_right, dim_height))
+        self.arrow_dim_obj.textcoords = self.ax2.transData
+
+        # Bar dimension line update ------------------------------------------------------------------------------------
+        self.bar_dim_obj.xy = (dim_left, dim_height)
+        self.bar_dim_obj.set_position((dim_right, dim_height))
+        self.bar_dim_obj.textcoords = self.ax2.transData
+
+        # dimension text update ----------------------------------------------------------------------------------------
+        self.dim_text.set_position((dim_left + (bw / 2), dim_height))
+        self.dim_text.set_text(params['bw_text'])
 
         # REDRAW PLOT --------------------------------------------------------------------------------------------------
         self.plot_redraw()
@@ -395,13 +433,6 @@ class PhaseModulatorPanel(wx.Panel):
             raise
         self.ax1.margins(x=0)
         self.ax1.autoscale(axis='y')
-
-        # ht = -0.05
-        # w=20
-        # self.ax2.annotate("", xy=(0, ht), xytext=(w, ht), textcoords=self.ax2.transData, arrowprops=dict(arrowstyle='<->'))
-        # self.ax2.annotate("", xy=(0, ht), xytext=(w, ht), textcoords=self.ax2.transData, arrowprops=dict(arrowstyle='|-|'))
-        # bbox = dict(fc="white", ec="none")
-        # self.ax2.text(w / 2, ht, "L=200 m", ha="center", va="center", bbox=bbox)
 
         # UPDATE PLOT FEATURES -----------------------------------------------------------------------------------------
         self.figure.tight_layout()
