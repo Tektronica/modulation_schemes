@@ -1,0 +1,55 @@
+	
+import numpy as np
+import numpy.matlib as matlab
+
+fm = 1  # modulation frequency
+fs = 10 # sample rate
+N = 100  # number of samples
+
+T = int(fs/fm)
+
+print('The number of samples:', N)
+print('The period of one bit:', T, 'samples')
+print('The samples per period', T)
+print('The number of bits displayed:', int(N / T))
+
+"""
+======================================================
+MESSAGE CLOCK (message frequency):
+======================================================
+    +---+   +---+   +---+   +---+
+    |   |   |   |   |   |   |   |
++---+   +---+   +---+   +---+   +---+
+  0   1   0   1   0   1   0   1   0
+|<----->|<----->|<----->|<----->|
+    T       T       T       T
+
+======================================================
+MESSAGE (bit can only change on rising edge):
+======================================================
+    +---+---+       +---+---+
+    |       |       |       |
++---+       +---+---+       +---+---+
+        1       0       1       0   
+    |<----->|<----->|<----->|<----->|
+        T       T       T       T
+"""
+
+N_dt_per_bit = 1/fm  # bit dt length is 1 period + 90deg shift
+
+l = np.round(np.random.rand(1, int(N/T)))
+# m = matlab.repmat(l, N, 1)
+# n = np.reshape(m, [1, N])
+
+k = np.resize(l, N)
+print('message', l, '\n')
+print(len(k))
+print(k)
+
+# print('m', m, '\n')
+# print('n', n, '\n')
+
+
+
+20log10 vs 10log10
+Whether you use 10 or 20 in calculating decibels depends on the units you are starting with. If you are starting with power, use 10, because power is already the square of amplitude. If you are starting with amplitude (or ‘energy’), use 20.

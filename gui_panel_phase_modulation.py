@@ -53,7 +53,7 @@ class PhaseModulatorPanel(wx.Panel):
         self.text_carrier_frequency = wx.TextCtrl(self.left_panel, wx.ID_ANY, "1e3")
 
         self.combo_waveform = wx.ComboBox(self.left_panel, wx.ID_ANY,
-                                          choices=["Sine", "Triangle", "Square"],
+                                          choices=["Sine", "Triangle", "Square", "Shift Keying"],
                                           style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.combo_modulation = wx.ComboBox(self.left_panel, wx.ID_ANY,
                                             choices=["Amplitude", "Frequency", "Phase"],
@@ -309,7 +309,7 @@ class PhaseModulatorPanel(wx.Panel):
         sample_rate = to_float(self.text_sample_rate.GetValue(), property="sample rate")
         main_lobe_error = to_float(self.text_mainlobe_error.GetValue(), property="main lobe error")
         modulation_type = self.combo_modulation.GetSelection()
-        waveform_lookup = {0: 'sine', 1: 'triangle', 2: 'square'}
+        waveform_lookup = {0: 'sine', 1: 'triangle', 2: 'square', 3: 'keying'}
         waveform_type = waveform_lookup[self.combo_waveform.GetSelection()]
         carrier_amplitude = to_float(self.text_carrier_amplitude.GetValue(), property="carrier amplitude")
         carrier_frequency = to_float(self.text_carrier_frequency.GetValue(), property="carrier frequency")
@@ -360,7 +360,7 @@ class PhaseModulatorPanel(wx.Panel):
 
         self.ax2.set_title('SPECTRAL DATA')
         self.ax2.set_xlabel('FREQUENCY (kHz)')
-        self.ax2.set_ylabel('MAGNITUDE (dB)')
+        self.ax2.set_ylabel('AMPLITUDE (V)')
         self.ax2.grid()
         self.figure.align_ylabels([self.ax1, self.ax2])
         self.figure.tight_layout()
@@ -459,7 +459,7 @@ class MyPhaseModulationFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((1055, 600))
+        self.SetSize((1055, 620))
         self.panel_frame = wx.Panel(self, wx.ID_ANY)
         self.panel_app = PhaseModulatorPanel(self.panel_frame)
 
@@ -467,7 +467,7 @@ class MyPhaseModulationFrame(wx.Frame):
         self.__do_layout()
 
     def __set_properties(self):
-        self.SetTitle("Multimeter")
+        self.SetTitle("Modulation Schemes")
         self.panel_frame.SetBackgroundColour((255, 255, 255))
 
     def __do_layout(self):
