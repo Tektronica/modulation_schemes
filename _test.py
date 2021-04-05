@@ -9,19 +9,19 @@ phase = 0  # phase of message signal
 
 N_range = np.arange(0, N, 1)  # sample base
 xt = N_range / Fs  # time base
-p = Fs / fm  # samples per period
+T = Fs / fm  # samples per period
 Am = 1  # amplitude
 
-waveform = 'triangle'
+waveform = 'shift_keying'
 
 if waveform == 'sine':
+    print('SINE')
     mt = 1 * np.cos(2 * np.pi * 1000 * xt)
     mt_ = np.sin(np.pi * fm * xt) * np.cos(np.pi * fm * xt + fm)
 
 elif waveform == 'triangle':
-    # Triangle
+    print('TRIANGLE')
     # https://en.wikipedia.org/wiki/Triangle_wave#Modulo_operation
-    T = Fs / fm
 
     # message signal (modulo operation)
     N_phase_shifted = N_range + int(T * phase / 360)
@@ -33,36 +33,48 @@ elif waveform == 'triangle':
     print(fm, T)
 
     def first(x, T):
-        t = (x % (T))
-        return fm / 10000 * (2 / T * t ** 2 - t)
+        t = (x % T)
+        return 2 / T * t ** 2 - t
 
     def second(x, T):
-        t = (x % (T))
-        return fm / 10000 * (-2 / T * t ** 2 + 3 * t - T)
+        t = (x % T)
+        return -2 / T * t ** 2 + 3 * t - T
 
-    mt_ = np.where((integral_shift % T) < T / 2, first(integral_shift, T), second(integral_shift, T))
+    scaling = fm / 10000
+    mt_ = scaling * np.where((integral_shift % T) < T / 2, first(integral_shift, T), second(integral_shift, T))
 
     st = 1 * np.cos(2 * np.pi * 1000 * xt + 5 * mt_)
 
     # square wave ------------------------------------------------------------------------------------------------------
     mt__ = np.where(((integral_shift - T/2) % T) < T / 2, 1, -1)
 
-    # scipy integration of trangle wave --------------------------------------------------------------------------------
-    mt___ = integrate.cumtrapz(mt) / 100 - 1
-
-    print(p)
-    n = 200
-    print(N_range[n], xt[n], mt___[n])
-    n = 400
-    print(N_range[n], xt[n], mt___[n])
-    n = 800
-    print(N_range[n], xt[n], mt___[n])
+    # scipy integration of triangle wave -------------------------------------------------------------------------------
+    scaling = fm / 10000
+    mt___ = scaling*integrate.cumtrapz(mt) - 1
 
 elif waveform == 'square':
-    mt = np.where((((N_range % p) + p) % p) < p / 2, 1, 0)
-    N_range_phase_shift = N_range + p * 90 / 360
-    print(N_range)
-    mt_ = 4 / p * np.abs((((N_range_phase_shift - p / 4) % p) + p) % p - p / 2) - 1
+    print('SQUARE')
+    N_phase_shifted = N_range + int(T * phase / 360)
+
+    mt = np.where((N_range % T) < T / 2, 1, 0)
+
+    # integrate the modulating signal because frequency is the time derivative of phase
+    mt_ = 4 / T * np.abs((N_phase_shifted - T / 4) % T - T / 2) - 1
+    mt___ = integrate.cumtrapz(mt)
+
+elif waveform == 'shift_keying':
+    print('SHIFT KEYING')
+    N_phase_shifted = N_range + int(T * phase / 360)
+
+    binary_message = np.round(np.random.rand(1, int(N / T)))[0]
+    mt = np.repeat(binary_message, T)[:N]
+    scaling = fm / 10000
+    mt_ = scaling * mt * N_range
+
+    # scipy integration of square wave ---------------------------------------------------------------------------------
+    scaling = fm / 10000
+    mt___ = scaling*integrate.cumtrapz(2*mt-1)
+
 else:
     raise ValueError("Invalid waveform type selected!")
 
@@ -111,8 +123,8 @@ ax2 = figure.add_subplot(212)
 
 temporal, = ax1.plot(xt, mt, '-')  # Triangle
 temporal_2, = ax1.plot(xt, mt_, '--')  # integral of triangle
-temporal_3, = ax1.plot(xt, mt__, '--')  # square
-# temporal_4, = ax1.plot(xt[1:], mt___, '--')
+# temporal_3, = ax1.plot(xt, mt__, '--')  # square
+temporal_4, = ax1.plot(xt[1:], mt___, '--')
 # temporal_5, = ax1.plot(xt, st, '--')
 
 ax1.set_xlim((0, 4 / fm))

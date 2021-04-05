@@ -47,7 +47,7 @@ class PhaseModulatorPanel(wx.Panel):
         # PANELS =======================================================================================================
         # LEFT Panel ---------------------------------------------------------------------------------------------------
         self.text_sample_rate = wx.TextCtrl(self.left_panel, wx.ID_ANY, "80000")
-        self.text_mainlobe_error = wx.TextCtrl(self.left_panel, wx.ID_ANY, "0.1")
+        self.text_mainlobe_error = wx.TextCtrl(self.left_panel, wx.ID_ANY, "0.06")
 
         self.text_carrier_amplitude = wx.TextCtrl(self.left_panel, wx.ID_ANY, "1")
         self.text_carrier_frequency = wx.TextCtrl(self.left_panel, wx.ID_ANY, "1e3")

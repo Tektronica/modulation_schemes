@@ -236,7 +236,7 @@ class Modulators:
         if fm != 0:
             N = getWindowLength(f0=fm, fs=sample_rate, windfunc=WINDOW_FUNC, error=main_lobe_error)
         elif fm == 0:
-            ldf = fc/10  # lowest detectable frequency
+            ldf = fc / 10  # lowest detectable frequency
             N = getWindowLength(f0=ldf, fs=sample_rate, windfunc=WINDOW_FUNC, error=main_lobe_error)
         else:
             raise ValueError("Carrier frequency must be non-zero!")
@@ -268,13 +268,14 @@ class Modulators:
 
             def first(x, T):
                 t = (x % T)
-                return fm / 10000 * (2 / T * t ** 2 - t)
+                return 2 / T * t ** 2 - t
 
             def second(x, T):
                 t = (x % T)
-                return fm / 10000 * (-2 / T * t ** 2 + 3 * t - T)
+                return -2 / T * t ** 2 + 3 * t - T
 
-            mt_ = np.where((integral_shift % T) < T / 2, first(integral_shift, T), second(integral_shift, T))
+            scaling = fm / 10000
+            mt_ = scaling * np.where((integral_shift % T) < T / 2, first(integral_shift, T), second(integral_shift, T))
 
         elif waveform_type == 'square':
             T = sample_rate / fm
@@ -286,16 +287,22 @@ class Modulators:
             # integral of message signal (square wave integral is a triangle wave (modulo operation) with 90 phase lag)
             corrected_phase_shift = N_phase_shifted + int(T * 90 / 360)
             mt_ = (4 / T) * np.abs(((corrected_phase_shift - T / 4) % T) - T / 2) - 1
+
         elif waveform_type == 'keying':
+            digital_modulation = {0: 'ask', 1: 'fsk', 2: 'psk'}
             T = sample_rate / fm
             N_phase_shifted = N_range + int(T * message_phase / 360)
 
             # message signal
-            mt = np.where((N_range % T) < T / 2, 1, 0)
+            binary_message = np.round(np.random.rand(1, int(N / T)))[0]
+            mt = np.repeat(binary_message, T)[:N]
 
-            # integral of message signal (square wave integral is a triangle wave (modulo operation) with 90 phase lag)
-            corrected_phase_shift = N_phase_shifted + int(T * 90 / 360)
-            mt_ = (4 / T) * np.abs(((corrected_phase_shift - T / 4) % T) - T / 2) - 1
+            if digital_modulation[modulation_type] == 'fsk':
+                # frequency term is converted to an angle. Since discrete steps, there are only f_low (0) and f_high (1)
+                mt_ = 2 * np.pi * fm * (2 * mt - 1) * xt
+
+            elif digital_modulation[modulation_type] == 'psk':
+                mt = np.deg2rad(180 * mt)
         else:
             raise ValueError("Invalid waveform type selected!")
 
@@ -312,13 +319,21 @@ class Modulators:
             # frequency modulation -------------------------------------------------------------------------------------
             # In FM, the angle is directly proportional to the integral of m(t)
             st = Ac * np.cos(2 * np.pi * fc * xt + modulation_index * mt_)
-            bw = 2 * fm * (modulation_index + 1)
+
+            if waveform_type != 'keying':
+                bw = 2 * fm * (modulation_index + 1)
+            else:
+                bw = 2 * (1 / T + modulation_index * fm)
 
         elif modulation_type == 2:
             # phase modulation -------------------------------------------------------------------------------------
             # In PM, the angle is directly proportional to m(t)
             st = Ac * np.cos(2 * np.pi * fc * xt + modulation_index * mt)
-            bw = 2 * fm * (modulation_index + 1)
+
+            if waveform_type != 'keying':
+                bw = 2 * fm * (modulation_index + 1)
+            else:
+                bw = fc + fm - (fc - fm)
 
         else:
             raise ValueError("Invalid modulation type selected!")
@@ -381,7 +396,7 @@ class Modulators:
             xf_right = min(max(2 * fc - xf_left, fc + bw / 2), freq_end)  # Does not exceed max bin
         elif fm == 0:
             xf_left = max(fc - (fc / 2), 0)
-            xf_right = min(2 * fc - fc/2, freq_end)  # Does not exceed max bin
+            xf_right = min(2 * fc - fc / 2, freq_end)  # Does not exceed max bin
         else:
             raise ValueError("Carrier frequency must be non-zero!")
 
