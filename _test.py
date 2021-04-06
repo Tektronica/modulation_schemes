@@ -12,21 +12,23 @@ xt = N_range / Fs  # time base
 T = Fs / fm  # samples per period
 Am = 1  # amplitude
 
-waveform = 'shift_keying'
+WAVEFORM = 'sawtooth'
 
-if waveform == 'sine':
+if WAVEFORM == 'sine':
     print('SINE')
     mt = 1 * np.cos(2 * np.pi * 1000 * xt)
     mt_ = np.sin(np.pi * fm * xt) * np.cos(np.pi * fm * xt + fm)
 
-elif waveform == 'triangle':
+elif WAVEFORM == 'triangle':
     print('TRIANGLE')
     # https://en.wikipedia.org/wiki/Triangle_wave#Modulo_operation
 
-    # message signal (modulo operation)
+    # message signal (modulo operation) --------------------------------------------------------------------------------
     N_phase_shifted = N_range + int(T * phase / 360)
 
     mt = ((4 * Am) / T) * np.abs(((N_phase_shifted - T / 4) % T) - T / 2) - 1
+    # Alternatively, the triangle wave is the absolute value of the sawtooth wave:
+    alternative_mt = 2 * np.abs(2*(N_phase_shifted / T - np.floor(0.5 + (N_phase_shifted / T))))-1
 
     # integral of triangle ---------------------------------------------------------------------------------------------
     integral_shift = N_phase_shifted + T / 4
@@ -52,17 +54,43 @@ elif waveform == 'triangle':
     scaling = fm / 10000
     mt___ = scaling*integrate.cumtrapz(mt) - 1
 
-elif waveform == 'square':
+elif WAVEFORM == 'sawtooth':
+    # Sawtooth
+    T = Fs / fm  # sample length per period
+    N_phase_shifted = N_range + int(T * phase / 360)
+
+    mt = (N_phase_shifted % T) / T
+
+    # integral of sawtooth ---------------------------------------------------------------------------------------------
+    integral_shift = N_phase_shifted + T / 4
+    print(fm, T)
+
+    def first(x, T):
+        t = (x % T)
+        return 2 / T * t ** 2 - t
+
+    # mt_ = 2 * (0.5 * mt ** 2)
+    scaling = 1/Fs
+    mt_ = scaling * N_phase_shifted * (N_phase_shifted - T)/T
+
+    # scipy integration of sawtooth wave -------------------------------------------------------------------------------
+    scaling = fm / 10000
+    mt___ = scaling * integrate.cumtrapz(mt) - 1
+
+
+elif WAVEFORM == 'square':
     print('SQUARE')
     N_phase_shifted = N_range + int(T * phase / 360)
 
     mt = np.where((N_range % T) < T / 2, 1, 0)
 
     # integrate the modulating signal because frequency is the time derivative of phase
-    mt_ = 4 / T * np.abs((N_phase_shifted - T / 4) % T - T / 2) - 1
+    mt_ = (2 * mt - 1) * xt
+
+    # scipy integration of square wave -------------------------------------------------------------------------------
     mt___ = integrate.cumtrapz(mt)
 
-elif waveform == 'shift_keying':
+elif WAVEFORM == 'shift_keying':
     print('SHIFT KEYING')
     N_phase_shifted = N_range + int(T * phase / 360)
 
@@ -124,7 +152,7 @@ ax2 = figure.add_subplot(212)
 temporal, = ax1.plot(xt, mt, '-')  # Triangle
 temporal_2, = ax1.plot(xt, mt_, '--')  # integral of triangle
 # temporal_3, = ax1.plot(xt, mt__, '--')  # square
-temporal_4, = ax1.plot(xt[1:], mt___, '--')
+# temporal_4, = ax1.plot(xt[1:], mt___, '.')  # scipy cumtrapz
 # temporal_5, = ax1.plot(xt, st, '--')
 
 ax1.set_xlim((0, 4 / fm))

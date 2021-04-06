@@ -1,13 +1,14 @@
-import time
-import pandas as pd
-import numpy as np
-from pathlib import Path
-import threading
-import datetime
 import os
-import re
-from decimal import Decimal
+import time
+import datetime
+from pathlib import Path
+
 import csv
+
+import numpy as np
+import threading
+
+import matplotlib.pyplot as plt  # only used for running this file directly
 
 
 ########################################################################################################################
@@ -51,7 +52,7 @@ def getWindowLength(f0=10e3, fs=2.5e6, windfunc='blackman', error=0.1):
     in order to express content of that lobe in the DFT. Sampling frequency does not play a role in the width of the
     lobe, only the resolution of the lobe.
 
-    :param fc: carrier frequency
+    :param f0: frequency of interest
     :param fs: sampling frequency
     :param windfunc: "Rectangular", "Bartlett", "Hanning", "Hamming", "Blackman"
     :param error: 100% error suggests the lowest detectable frequency is the fundamental
@@ -129,8 +130,6 @@ class Modulators:
         self.params = {'mode': 0, 'source': 0, 'amplitude': '', 'units': '',
                        'rms': 0, 'frequency': 0.0, 'error': 0.0,
                        'cycles': 0.0, 'filter': ''}
-        self.data = {'xt': [0], 'yt': [0],
-                     'xf': [0], 'yf': [0]}
         self.results = {'Amplitude': [], 'Frequency': [], 'RMS': [],
                         'THDN': [], 'THD': [], 'RMS NOISE': [],
                         'N': [], 'Fs': [], 'Aperture': []}
@@ -245,14 +244,16 @@ class Modulators:
         N_range = np.arange(0, N, 1)
         xt = N_range / sample_rate
 
-        # Compute message ----------------------------------------------------------------------------------------------
+        # Compute message ==============================================================================================
         if waveform_type == 'sine':
+            T = sample_rate / fm  # sample length per period
+
             # message signal
-            mt = np.cos(2 * np.pi * fm * xt + np.deg2rad(message_phase))
+            mt = np.sin(2 * np.pi * fm * xt + np.deg2rad(message_phase))
 
             # integral of message signal
-            mt_ = 2 * np.sin(np.pi * fm * xt) * np.cos(np.pi * fm * xt + message_phase)
-
+            mt_ = (1 / (np.pi * fm)) * np.sin(np.pi * fm * xt) * np.sin(np.pi * fm * xt + message_phase)
+        # --------------------------------------------------------------------------------------------------------------
         elif waveform_type == 'triangle':
             # Triangle
             # https://en.wikipedia.org/wiki/Triangle_wave#Modulo_operation
@@ -263,7 +264,7 @@ class Modulators:
 
             mt = (4 / T) * np.abs(((N_phase_shifted - T / 4) % T) - T / 2) - 1
 
-            # integral of triangle -------------------------------------------------------------------------------------
+            # integral of triangle
             integral_shift = N_phase_shifted + T / 4
 
             def first(x, T):
@@ -274,59 +275,78 @@ class Modulators:
                 t = (x % T)
                 return -2 / T * t ** 2 + 3 * t - T
 
-            scaling = fm / 10000
+            scaling = 1 / sample_rate
             mt_ = scaling * np.where((integral_shift % T) < T / 2, first(integral_shift, T), second(integral_shift, T))
 
+        # --------------------------------------------------------------------------------------------------------------
+        elif waveform_type == 'sawtooth':
+            # Sawtooth
+            T = sample_rate / fm  # sample length per period
+            N_phase_shifted = N_range + int(T * message_phase / 360)
+
+            mt = (N_phase_shifted % T) / T
+
+            # integral of sawtooth
+            scaling = 1/sample_rate
+            mt_ = scaling * ((1/T) * (N_phase_shifted % T) ** 2 - (N_phase_shifted % T))
+
+        # --------------------------------------------------------------------------------------------------------------
         elif waveform_type == 'square':
             T = sample_rate / fm
             N_phase_shifted = N_range + int(T * message_phase / 360)
 
             # message signal
-            mt = np.where((N_range % T) < T / 2, 1, 0)
+            mt = np.where((N_phase_shifted % T) < T / 2, 1, 0)
 
-            # integral of message signal (square wave integral is a triangle wave (modulo operation) with 90 phase lag)
-            corrected_phase_shift = N_phase_shifted + int(T * 90 / 360)
-            mt_ = (4 / T) * np.abs(((corrected_phase_shift - T / 4) % T) - T / 2) - 1
+            # integral of message signal (square wave integral is a triangle wave (modulo operation) with 180 phase lag)
+            scaling = 1 / sample_rate
+            mt_ = scaling * (np.abs((N_phase_shifted - T / 2) % T - T / 2) - 1)
 
+        # --------------------------------------------------------------------------------------------------------------
         elif waveform_type == 'keying':
             digital_modulation = {0: 'ask', 1: 'fsk', 2: 'psk'}
             T = sample_rate / fm
-            N_phase_shifted = N_range + int(T * message_phase / 360)
 
-            # message signal
+            # message signal -------------------------------------------------------------------------------------------
             binary_message = np.round(np.random.rand(1, int(N / T)))[0]
             mt = np.repeat(binary_message, T)[:N]
 
-            if digital_modulation[modulation_type] == 'fsk':
-                # frequency term is converted to an angle. Since discrete steps, there are only f_low (0) and f_high (1)
-                mt_ = 2 * np.pi * fm * (2 * mt - 1) * xt
+            # frequency term is converted to an angle. Since discrete steps, there are only f_low (0) and f_high (1)
+            mt_ = (2 * mt - 1) * xt
 
-            elif digital_modulation[modulation_type] == 'psk':
-                mt = np.deg2rad(180 * mt)
+            if digital_modulation[modulation_type] == 'psk':
+                mt = np.deg2rad(message_phase * mt)
+                mt_ = 1
+
+        # --------------------------------------------------------------------------------------------------------------
         else:
             raise ValueError("Invalid waveform type selected!")
 
         # waveform data ------------------------------------------------------------------------------------------------
         # https://user.eng.umd.edu/~tretter/commlab/c6713slides/ch8.pdf
-
+        # --------------------------------------------------------------------------------------------------------------
         if modulation_type == 0:
-            # amplitude modulation -------------------------------------------------------------------------------------
-            ct = Ac * np.cos(2 * np.pi * fc * xt)
+            # amplitude modulation
+            ct = Ac * np.sin(2 * np.pi * fc * xt)
             st = ct * modulation_index * mt
             bw = 2 * fm
 
+        # --------------------------------------------------------------------------------------------------------------
         elif modulation_type == 1:
             # frequency modulation -------------------------------------------------------------------------------------
             # In FM, the angle is directly proportional to the integral of m(t)
-            st = Ac * np.cos(2 * np.pi * fc * xt + modulation_index * mt_)
+            # modulation index (mi) = (Am * kf) / fm
+            # kf = (mi) * fm / Am
+            st = Ac * np.sin(2 * np.pi * (fc * xt + (modulation_index * fm * mt_)))
 
             if waveform_type != 'keying':
                 bw = 2 * fm * (modulation_index + 1)
             else:
-                bw = 2 * (1 / T + modulation_index * fm)
+                bw = 2 * (1 / T + modulation_index * fm) + fm
 
+        # --------------------------------------------------------------------------------------------------------------
         elif modulation_type == 2:
-            # phase modulation -------------------------------------------------------------------------------------
+            # phase modulation
             # In PM, the angle is directly proportional to m(t)
             st = Ac * np.cos(2 * np.pi * fc * xt + modulation_index * mt)
 
@@ -335,6 +355,7 @@ class Modulators:
             else:
                 bw = fc + fm - (fc - fm)
 
+        # --------------------------------------------------------------------------------------------------------------
         else:
             raise ValueError("Invalid modulation type selected!")
 
@@ -355,7 +376,11 @@ class Modulators:
 
         # plot and report ----------------------------------------------------------------------------------------------
         report = {'yrms': yrms, 'bw': bw}
-        self.frame.results_update(report)
+        try:
+            self.frame.results_update(report)
+        except AttributeError:
+            print('Attempted to update results of a parent frame or panel. Skipped.')
+            pass
         self.plot(data)
 
     def plot(self, data):
@@ -369,7 +394,7 @@ class Modulators:
         mt = data['mt']
         fft_length = data['fft_length']
 
-        x_periods = 4
+        x_periods = 8
         xt_left = 0
         if fm != 0:
             xt_right = min((x_periods / fm), runtime)
@@ -430,7 +455,7 @@ class Modulators:
         print('dim_left:', dim_left, 'dim_right:', dim_right, 'dim_left:', dim_left)
         print()
 
-        params = {'xt': xt * 1000, 'yt': yt, 'mt': mt,
+        params = {'xt': xt * 1000, 'yt': yt, 'mt': mt * (1 / max(mt)),
                   'xt_left': xt_left, 'xt_right': 1e3 * xt_right,
                   'yt_btm': -ylimit, 'yt_top': ylimit + yt_tick, 'yt_tick': yt_tick,
 
@@ -442,3 +467,118 @@ class Modulators:
                   }
 
         self.frame.plot(params)
+
+
+class Test:
+    def __init__(self):
+        self.M = Modulators(parent=self)
+        self.params = {'sample_rate': 80000,
+                       'main_lobe_error': 0.06,  # error * 'freq of interest' becomes the 'lowest detectable freq'
+                       'modulation_type': 1,  # Modulation type: 0 -> amplitude; 1 -> frequency; 2 -> phase
+                       'waveform_type': 'keying',  # 'sine', 'triangle', 'square', 'keying'
+                       'carrier_amplitude': 1,
+                       'carrier_frequency': 1000,
+                       'modulation_index': 5,
+                       'message_frequency': 100,
+                       'message_phase': 0  # for PSK, message phase becomes the phase shift of the carrier
+                       }
+
+        self.M.params = self.params
+        self.M.simulation()
+
+    def plot(self, params):
+        # Plot objects -------------------------------------------------------------------------------------------------
+        figure = plt.figure(figsize=(12.8, 4.8))  # standard figsize=(6.4, 4.8)
+
+        ax1 = figure.add_subplot(211)
+        ax2 = figure.add_subplot(212)
+
+        temporal, = ax1.plot([], [], linestyle='-')
+        temporal_2, = ax1.plot([], [], linestyle='--')
+        spectral, = ax2.plot([], [], color='#C02942')
+
+        # Plot Annotations ---------------------------------------------------------------------------------------------
+        # https://stackoverflow.com/a/38677732
+        arrow_dim_obj = ax2.annotate("", xy=(0, 0), xytext=(0, 0),
+                                     textcoords=ax2.transData, arrowprops=dict(arrowstyle='<->'))
+        bar_dim_obj = ax2.annotate("", xy=(0, 0), xytext=(0, 0),
+                                   textcoords=ax2.transData, arrowprops=dict(arrowstyle='|-|'))
+        bbox = dict(fc="white", ec="none")
+        dim_text = ax2.text(0, 0, "", ha="center", va="center", bbox=bbox)
+
+        # TEMPORAL -----------------------------------------------------------------------------------------------------
+        xt = params['xt']
+        yt = params['yt']
+        mt = params['mt']
+
+        temporal.set_data(xt, yt)
+        temporal_2.set_data(xt, mt)
+
+        xt_left = params['xt_left']
+        xt_right = params['xt_right']
+        yt_btm = params['yt_btm']
+        yt_top = params['yt_top']
+        yt_tick = params['yt_tick']
+
+        ax1.set_xlim(left=xt_left, right=xt_right)
+        # self.ax1.set_yticks(np.arange(yt_btm, yt_top, yt_tick))
+
+        # SPECTRAL -----------------------------------------------------------------------------------------------------
+        xf = params['xf']
+        yf = params['yf']
+
+        spectral.set_data(xf, yf)
+
+        xf_left = params['xf_left']
+        xf_right = params['xf_right']
+        yf_btm = params['yf_btm']
+        yf_top = params['yf_top']
+        yf_ticks = params['yf_ticks']
+
+        ax2.set_xlim(left=xf_left, right=xf_right)
+        ax2.set_ylim(bottom=yf_btm, top=yf_top)
+        ax2.set_yticks(yf_ticks)
+
+        # Labels -------------------------------------------------------------------------------------------------------
+        ax1.set_title('SAMPLED TIMED SERIES DATA')
+        ax1.set_xlabel('TIME (ms)')
+        ax1.set_ylabel('AMPLITUDE')
+
+        ax2.set_title('SPECTRAL DATA')
+        ax2.set_xlabel('FREQUENCY (kHz)')
+        ax2.set_ylabel('AMPLITUDE (V)')
+        ax2.grid()
+        figure.align_ylabels([ax1, ax2])
+        figure.tight_layout()
+
+        # Annotations --------------------------------------------------------------------------------------------------
+        dim_height = params['dim_height']
+        dim_left = params['dim_left']
+        dim_right = params['dim_right']
+        bw = params['bw']
+
+        # Arrow dimension line update ----------------------------------------------------------------------------------
+        # https://stackoverflow.com/a/48684902 -------------------------------------------------------------------------
+        arrow_dim_obj.xy = (dim_left, dim_height)
+        arrow_dim_obj.set_position((dim_right, dim_height))
+        arrow_dim_obj.textcoords = ax2.transData
+
+        # Bar dimension line update ------------------------------------------------------------------------------------
+        bar_dim_obj.xy = (dim_left, dim_height)
+        bar_dim_obj.set_position((dim_right, dim_height))
+        bar_dim_obj.textcoords = ax2.transData
+
+        # dimension text update ----------------------------------------------------------------------------------------
+        dim_text.set_position((dim_left + (bw / 2), dim_height))
+        dim_text.set_text(params['bw_text'])
+
+        # UPDATE PLOT FEATURES -----------------------------------------------------------------------------------------
+        figure.tight_layout()
+        ax1.relim()  # recompute the ax.dataLim
+        ax1.margins(x=0)
+        ax1.autoscale(axis='y')
+        plt.show()
+
+
+if __name__ == "__main__":
+    T = Test()

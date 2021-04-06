@@ -1,4 +1,4 @@
-from phase_modulation import Modulators as pm
+from modulation_engine import Modulators as pm
 
 import numpy as np
 import threading
@@ -53,7 +53,7 @@ class PhaseModulatorPanel(wx.Panel):
         self.text_carrier_frequency = wx.TextCtrl(self.left_panel, wx.ID_ANY, "1e3")
 
         self.combo_waveform = wx.ComboBox(self.left_panel, wx.ID_ANY,
-                                          choices=["Sine", "Triangle", "Square", "Shift Keying"],
+                                          choices=["Sine", "Triangle", 'Sawtooth', "Square", "Shift Keying"],
                                           style=wx.CB_DROPDOWN | wx.CB_READONLY)
         self.combo_modulation = wx.ComboBox(self.left_panel, wx.ID_ANY,
                                             choices=["Amplitude", "Frequency", "Phase"],
@@ -106,6 +106,7 @@ class PhaseModulatorPanel(wx.Panel):
 
         on_combo_modulation_select = lambda event: self.combo_modulation_select(event)
         self.Bind(wx.EVT_COMBOBOX_CLOSEUP, on_combo_modulation_select, self.combo_modulation)
+        self.Bind(wx.EVT_COMBOBOX_CLOSEUP, on_combo_modulation_select, self.combo_waveform)
 
         self.__set_properties()
         self.__do_layout()
@@ -302,6 +303,15 @@ class PhaseModulatorPanel(wx.Panel):
         else:
             raise ValueError("Invalid modulation selected!")
 
+        # PSK
+        if self.combo_waveform.GetSelection() == 4:
+            if self.combo_modulation.GetSelection() == 2:
+                self.text_message_phase.SetValue('180')
+            else:
+                self.text_message_phase.SetValue('0')
+        else:
+            self.text_message_phase.SetValue('0')
+
     # ------------------------------------------------------------------------------------------------------------------
     def get_values(self):
         mode = self.combo_mode.GetSelection()
@@ -309,7 +319,7 @@ class PhaseModulatorPanel(wx.Panel):
         sample_rate = to_float(self.text_sample_rate.GetValue(), property="sample rate")
         main_lobe_error = to_float(self.text_mainlobe_error.GetValue(), property="main lobe error")
         modulation_type = self.combo_modulation.GetSelection()
-        waveform_lookup = {0: 'sine', 1: 'triangle', 2: 'square', 3: 'keying'}
+        waveform_lookup = {0: 'sine', 1: 'triangle', 2: 'sawtooth', 3: 'square', 4: 'keying'}
         waveform_type = waveform_lookup[self.combo_waveform.GetSelection()]
         carrier_amplitude = to_float(self.text_carrier_amplitude.GetValue(), property="carrier amplitude")
         carrier_frequency = to_float(self.text_carrier_frequency.GetValue(), property="carrier frequency")
