@@ -70,7 +70,9 @@ Which provides the general expression for a frequency modulated signal:
 ### Sawtooth
 ![t = x \mod T](https://latex.codecogs.com/svg.latex?t%20=%20x%20\mod%20T)
 
-![M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}{\frac{\tau}{T}d\tau}=\frac{1}{T}\left(x\%20mod\%20T\right)^2-\left(x\%20mod\%20T\right)](https://latex.codecogs.com/svg.latex?M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}{\frac{\tau}{T}d\tau}=\frac{1}{T}\left(x\%20mod\%20T\right)^2-\left(x\%20mod\%20T\right))
+![m\left(t\right)=\frac{t}{T} =\frac{x \mod T}{T}](https://latex.codecogs.com/svg.latex?m\left(t\right)=\frac{t}{T}%20=\frac{x%20\mod%20T}{T})
+
+![M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}{\frac{\tau}{T}d\tau}=\boxed{\frac{1}{T}\left(x \mod T\right)^2-\left(x \mod T\right)}](https://latex.codecogs.com/svg.latex?M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}{\frac{\tau}{T}d\tau}=\boxed{\frac{1}{T}\left(x%20\mod%20T\right)^2-\left(x%20\mod%20T\right)})
 
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
