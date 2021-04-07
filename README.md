@@ -7,9 +7,9 @@ This application demonstrates various modulation schemes.
   
   
 ## The Signals  
-![c(t) = A_c cos (2 \pi f_c t)](https://latex.codecogs.com/svg.latex?c(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t))  
+![c(t) = A_c cos (2 \pi f_c t)](https://latex.codecogs.com/svg.latex?\text{carrier signal: }c(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t))
   
-![m(t) = A_m cos (2 \pi f_m t + \varphi_m)](https://latex.codecogs.com/svg.latex?m(t)%20=%20A_m%20cos%20(2%20\pi%20f_m%20t%20+%20\varphi_m))  
+![m(t) = A_m cos (2 \pi f_m t + \varphi_m)](https://latex.codecogs.com/svg.latex?\text{message signal: }m(t)%20=%20A_m%20cos%20(2%20\pi%20f_m%20t%20+%20\varphi_m))
   
 ## Amplitude Modulation  
 ![s(t) = c(t) \times m(t)](https://latex.codecogs.com/svg.latex?s(t)%20=%20c(t)%20\times%20m(t))  
