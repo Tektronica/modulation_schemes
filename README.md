@@ -7,19 +7,20 @@ This application demonstrates various modulation schemes.
   
   
 ## The Signals  
-![c(t) = A_c cos (2 \pi f_c t)](https://latex.codecogs.com/svg.latex?\text{carrier signal: }c(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t))
-  
-![m(t) = A_m cos (2 \pi f_m t + \varphi_m)](https://latex.codecogs.com/svg.latex?\text{message signal: }m(t)%20=%20A_m%20cos%20(2%20\pi%20f_m%20t%20+%20\varphi_m))
-  
-## Amplitude Modulation  
-![s(t) = c(t) \times m(t)](https://latex.codecogs.com/svg.latex?s(t)%20=%20c(t)%20\times%20m(t))  
-  
-## Phase Modulation  
-![s(t) = cos (2 \pi f_c + k_p m(t))](https://latex.codecogs.com/svg.latex?s(t)%20=%20cos%20(2%20\pi%20f_c%20+%20k_p%20m(t)))  
-  
-## Frequency Modulation  
 
-![s(t)=A_c \cos\left(2 \pi f_ct + 2\pi k_f \int_{0}^{t}{m\left(\tau\right)d\tau}\right)](https://latex.codecogs.com/svg.latex?s(t)%20=%20A_c%20cos%20\left(2\pi%20f_ct+2\pi%20k_f\int_{0}^{t}m\left(\tau\right)d\tau\right))
+![\text{carrier  signal:  }c(t)%20=%20A_c%20cos%20(2%20\pi  f_c  t)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20\text{message%20signal:%20}m(t)%20=%20A_m%20cos%20(2%20\pi%20f_m%20t%20+%20\varphi_m))
+
+![\text{message  signal:  }m(t)%20=%20A_m%20cos%20(2%20\pi%20f_m%20t%20+%20\varphi_m)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20\text{carrier%20signal:%20}c(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t))
+
+## Amplitude Modulation
+![s(t) = c(t) \times m(t)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20s(t)%20=%20c(t)%20\times%20m(t))
+
+## Phase Modulation
+![s(t) = cos (2 \pi f_c + k_p m(t))](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20s(t)%20=%20cos%20(2%20\pi%20f_c%20+%20k_p%20m(t)))
+
+## Frequency Modulation
+
+![s(t)=A_c \cos\left(2 \pi f_ct + 2\pi k_f \int_{0}^{t}{m\left(\tau\right)d\tau}\right)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20s(t)%20=%20A_c%20cos%20\left(2\pi%20f_ct+2\pi%20k_f\int_{0}^{t}m\left(\tau\right)d\tau\right))
 
 Let's understand why...
 
