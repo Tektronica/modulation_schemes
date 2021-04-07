@@ -22,6 +22,13 @@ This application demonstrates various modulation schemes.
 
 ![s(t) = cos (2 \pi f_c + k_p m(t))](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20s(t)%20=%20cos%20(2%20\pi%20f_c%20+%20k_p%20m(t)))
 
+>![BW=2f_m\left(\beta+1\right))](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20BW=2f_m\left(\beta+1\right))
+>
+>Bandwidth for *shift keyed* signals
+>
+>![BW_{keying}=f_c + f_m - (f_c - f_m)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20f_c%20+%20f_m%20-%20(f_c%20-%20f_m))
+
+
 ## Frequency Modulation
 
 ![s(t)=A_c \cos\left(2 \pi f_ct + 2\pi k_f \int_{0}^{t}{m\left(\tau\right)d\tau}\right)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20s(t)%20=%20A_c%20cos%20\left(2\pi%20f_ct+2\pi%20k_f\int_{0}^{t}m\left(\tau\right)d\tau\right))
@@ -82,12 +89,13 @@ Which defines the trigonometric argument for the frequency modulated waveform:
 
 ![s(t)=A_c \cos\left(2 \pi f_ct + 2\pi k_f \int_{0}^{t}{m\left(\tau\right)d\tau}\right)](https://latex.codecogs.com/svg.latex?\boxed{s(t)%20=%20A_c%20cos%20\left(2\pi%20f_ct+2\pi%20k_f\int_{0}^{t}m\left(\tau\right)d\tau\right)})
 
-![\text{modulating  index:  }\beta=\frac{\Delta  f}{f_m}=\frac{k_fA_m}{f_m}](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20\text{modulating%20index:%20}\beta=\frac{\Delta%20f}{f_m}=\frac{k_fA_m}{f_m})
-
-![\boxed{BW=2f_m\left(\beta+1\right)}=2(\Delta  f+f_m)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20\boxed{BW=2f_m\left(\beta+1\right)}=2(\Delta%20f+f_m))
-
-Bandwidth for shift keyed signals
-![BW_{keying}=2f_m\left(\frac{1}{T}+\beta  f_m\right)+f_m](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20BW_{keying}=2f_m\left(\frac{1}{T}+\beta%20f_m\right)+f_m)
+>![\text{modulating  index:  }\beta=\frac{\Delta  f}{f_m}=\frac{k_fA_m}{f_m}](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20\text{modulating%20index:%20}\beta=\frac{\Delta%20f}{f_m}=\frac{k_fA_m}{f_m})
+>
+>![\boxed{BW=2f_m\left(\beta+1\right)}=2(\Delta  f+f_m)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20\boxed{BW=2f_m\left(\beta+1\right)}=2(\Delta%20f+f_m))
+>
+>Bandwidth for shift keyed signals
+>
+>![BW_{keying}=2f_m\left(\frac{1}{T}+\beta  f_m\right)+f_m](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20BW_{keying}=2f_m\left(\frac{1}{T}+\beta%20f_m\right)+f_m)
 
 ## Integration
 ### Cosine
