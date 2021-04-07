@@ -8,7 +8,7 @@ This application demonstrates various modulation schemes.
 ## The Signals
 ![c(t) = A_c cos (2 \pi f_c t)](https://latex.codecogs.com/svg.latex?c(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t))
 
-![m(t) = A_m cos (2 \pi f_m t + \varphi_m)](https://latex.codecogs.com/svg.latex?m(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t%20+%20\phi_m))
+![m(t) = A_m cos (2 \pi f_m t + \varphi_m)](https://latex.codecogs.com/svg.latex?m(t)%20=%20A_m%20cos%20(2%20\pi%20f_m%20t%20+%20\varphi_m))
 
 ## Amplitude Modulation
 ![s(t) = c(t) \times m(t)](https://latex.codecogs.com/svg.latex?s(t)%20=%20c(t)%20\times%20m(t))
@@ -62,6 +62,8 @@ Which provides the general expression for a frequency modulated signal:
 ![m\left(t\right)=\frac{2}{\pi}\sin^{-1}{\left[\sin{\left(\pi t\right)}\right]}](https://latex.codecogs.com/svg.latex?m\left(t\right)=\frac{2}{\pi}\sin^{-1}{\left[\sin{\left(\pi%20t\right)}\right]})
 
 ![m\left(t\right)=\frac{4}{T}\left|\left(\left(x-\frac{T}{4}\right)\ mod\ T\right)-\frac{T}{2}\right|-1](https://latex.codecogs.com/svg.latex?m\left(t\right)=\frac{4}{T}\left|\left(\left(x-\frac{T}{4}\right)\%20mod\%20T\right)-\frac{T}{2}\right|-1)
+
+![m(t)=\left\{\begin{matrix}1 & 1 \\1 & 1 \\\end{matrix}\right.](https://latex.codecogs.com/svg.image?\bg_white&space;m(t)=\left\{\begin{matrix}1&space;&&space;1&space;\\1&space;&&space;1&space;&space;\\\end{matrix}\right.)
 
 ![M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}\left\{\begin{matrix}\frac{4}{T}\tau-1&\tau<\frac{T}{2}\\-\frac{4}{T}\tau+3&\tau\geq\frac{T}{2}\\\end{matrix}\right.d\tau=\left\{\begin{matrix}\left(\frac{2}{T}x^2-x\right)\ &if\ x<\frac{T}{2}\\\left(-\frac{2}{T}x^2+3x\right)&if\ x\geq\frac{T}{2}\\\end{matrix}\right.](https://latex.codecogs.com/svg.latex?![M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}\left\{\begin{matrix}\frac{4}{T}\tau-1&\tau%3C\frac{T}{2}\\-\frac{4}{T}\tau+3&\tau\geq\frac{T}{2}\\\end{matrix}\right.d\tau=\left\{\begin{matrix}\left(\frac{2}{T}x^2-x\right)\%20&if\%20x%3C\frac{T}{2}\\\left(-\frac{2}{T}x^2+3x\right)&if\%20x\geq\frac{T}{2}\\\end{matrix}\right.])
 
