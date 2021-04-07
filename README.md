@@ -45,10 +45,12 @@ Which provides the general expression for a frequency modulated signal:
 ![s\left(t\right)=A_c\cos{\left(\theta_i\right)}=A_c\cos{\left(2\pi\left(f_ct+k_f\int_{0}^{t}m\left(\tau\right)d\tau\right)\right)}](https://latex.codecogs.com/svg.latex?s\left(t\right)=A_c\cos{\left(\theta_i\right)}=A_c\cos{\left(2\pi\left(f_ct+k_f\int_{0}^{t}m\left(\tau\right)d\tau\right)\right)})
 
 ## Integration
-### Sine
+### Cosine
 ![m\left(t\right)=A_m\cos{\left(2\pi f_mt+\varphi_m\right)}](https://latex.codecogs.com/svg.latex?m\left(t\right)=A_m\cos{\left(2\pi%20f_mt+\varphi_m\right)})
 
 ![M\left(t\right)=\frac{A_m}{\pi f_m}\sin{\left(\pi f_mt\right)}\cos{\left(\pi f_mt+\varphi_m\right)}](https://latex.codecogs.com/svg.latex?M\left(t\right)=\frac{A_m}{\pi%20f_m}\sin{\left(\pi%20f_mt\right)}\cos{\left(\pi%20f_mt+\varphi_m\right)})
+
+### Sine
 
 ![m\left(t\right)=A_m\sin{\left(2\pi f_mt+\varphi_m\right)}](https://latex.codecogs.com/svg.latex?m\left(t\right)=A_m\sin{\left(2\pi%20f_mt+\varphi_m\right)})
 
@@ -61,11 +63,11 @@ Which provides the general expression for a frequency modulated signal:
 
 ![m\left(t\right)=\frac{2}{\pi}\sin^{-1}{\left[\sin{\left(\pi t\right)}\right]}](https://latex.codecogs.com/svg.latex?m\left(t\right)=\frac{2}{\pi}\sin^{-1}{\left[\sin{\left(\pi%20t\right)}\right]})
 
-![m\left(t\right)=\frac{4}{T}\left|\left(\left(x-\frac{T}{4}\right)\ mod\ T\right)-\frac{T}{2}\right|-1](https://latex.codecogs.com/svg.latex?m\left(t\right)=\frac{4}{T}\left|\left(\left(x-\frac{T}{4}\right)\%20mod\%20T\right)-\frac{T}{2}\right|-1)
+![m\left(t\right)=\frac{4}{T}\left|\left(\left(t-\frac{T}{4}\right)\ mod\ T\right)-\frac{T}{2}\right|-1](https://latex.codecogs.com/svg.latex?m\left(t\right)=\frac{4}{T}\left|\left(\left(t-\frac{T}{4}\right)\%20mod\%20T\right)-\frac{T}{2}\right|-1)
 
-![m(t) = \left\{\begin{matrix}\frac{4}{T}x - 1 & x<T/2\\\ -\frac{4}{T}x^2 + 3 & x\geq T/2\end{matrix}\right.](https://latex.codecogs.com/svg.image?%5Cbg_white%20m(t)%20=%20%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%5Cfrac%7B4%7D%7BT%7Dx%20-%201%20&%20x%3CT/2%5C%5C%5C%20-%5Cfrac%7B4%7D%7BT%7Dx%5E2%20&plus;%203%20&%20x%5Cgeq%20T/2%5Cend%7Bmatrix%7D%5Cright.)
+![m(t) = \left\{\begin{matrix}\frac{4}{T}t - 1 & t<T/2\\\ -\frac{4}{T}t^2 + 3 & t\geq T/2\end{matrix}\right.](https://latex.codecogs.com/svg.image?%5Cbg_white%20m(t)%20=%20%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%5Cfrac%7B4%7D%7BT%7Dt%20-%201%20&%20t%3CT/2%5C%5C%5C%20-%5Cfrac%7B4%7D%7BT%7Dt%5E2%20&plus;%203%20&%20t%5Cgeq%20T/2%5Cend%7Bmatrix%7D%5Cright.)
 
-![M(t) = \int_{0}^{t}{m\left(\tau\right) d\tau} = \left\{\begin{matrix}\frac{2}{T}x^2 - x & x<T/2\\\ -\frac{2}{T}x^2 + 3x & x\geq T/2\end{matrix}\right.](https://latex.codecogs.com/svg.image?%5Cbg_white%20M(t)%20=%20%5Cint_%7B0%7D%5E%7Bt%7D%7Bm%5Cleft(%5Ctau%5Cright)%20d%5Ctau%7D%20=%20%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%5Cfrac%7B2%7D%7BT%7Dx%5E2%20-%20x%20&%20x%3CT/2%5C%5C%5C%20-%5Cfrac%7B2%7D%7BT%7Dx%5E2%20&plus;%203x%20&%20x%5Cgeq%20T/2%5Cend%7Bmatrix%7D%5Cright.)
+![M(t) = \int_{0}^{t}{m\left(\tau\right) d\tau} = \left\{\begin{matrix}\frac{2}{T}t^2 - t & t<T/2\\\ -\frac{2}{T}t^2 + 3t & t\geq T/2\end{matrix}\right.](https://latex.codecogs.com/svg.image?%5Cbg_white%20M(t)%20=%20%5Cint_%7B0%7D%5E%7Bt%7D%7Bm%5Cleft(%5Ctau%5Cright)%20d%5Ctau%7D%20=%20%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%5Cfrac%7B2%7D%7BT%7Dt%5E2%20-%20t%20&%20t%3CT/2%5C%5C%5C%20-%5Cfrac%7B2%7D%7BT%7Dt%5E2%20&plus;%203t%20&%20t%5Cgeq%20T/2%5Cend%7Bmatrix%7D%5Cright.)
 
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
@@ -80,9 +82,9 @@ Which provides the general expression for a frequency modulated signal:
 
 ### Square
 
-![m(t)=\begin{cases}1 & \text{ if } x<T/2 \\ -1 & \text{ if } x \geq T/2 \end{cases}](https://latex.codecogs.com/svg.image?%5Cbg_white%20m(t)=%5Cbegin%7Bcases%7D1&%20%5Ctext%7B%20if%20%7D%20x%3CT/2%5C%5C-1&%20%5Ctext%7B%20if%20%7D%20x%20%5Cgeq%20T/2%20%5Cend%7Bcases%7D)
+![m(t)=\begin{cases}1 & \text{ if } t<T/2 \\ -1 & \text{ if } t \geq T/2 \end{cases}](https://latex.codecogs.com/svg.image?%5Cbg_white%20m(t)=%5Cbegin%7Bcases%7D1&%20%5Ctext%7B%20if%20%7D%20t%3CT/2%5C%5C-1&%20%5Ctext%7B%20if%20%7D%20t%20%5Cgeq%20T/2%20%5Cend%7Bcases%7D)
 
-![M(t)=\int_{0}^{t}{m(\tau)d\tau}=\begin{cases} t & \text{ if } t<T/2 \\ -t & \text{ if } x \geq T/2 \end{cases}](https://latex.codecogs.com/svg.image?%5Cbg_white%20M(t)=%5Cint_%7B0%7D%5E%7Bt%7D%7Bm(%5Ctau)d%5Ctau%7D=%5Cbegin%7Bcases%7D%20t%20&%20%5Ctext%7B%20if%20%7D%20t%3CT/2%20%5C%5C%20-t%20&%20%5Ctext%7B%20if%20%7D%20x%20%5Cgeq%20T/2%20%5Cend%7Bcases%7D)
+![M(t)=\int_{0}^{t}{m(\tau)d\tau}=\begin{cases} t & \text{ if } t<T/2 \\ -t & \text{ if } x \geq T/2 \end{cases}](https://latex.codecogs.com/svg.image?%5Cbg_white%20M(t)=%5Cint_%7B0%7D%5E%7Bt%7D%7Bm(%5Ctau)d%5Ctau%7D=%5Cbegin%7Bcases%7D%20t%20&%20%5Ctext%7B%20if%20%7D%20t%3CT/2%20%5C%5C%20-t%20&%20%5Ctext%7B%20if%20%7D%20t%20%5Cgeq%20T/2%20%5Cend%7Bcases%7D)
 
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
