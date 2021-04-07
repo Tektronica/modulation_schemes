@@ -26,7 +26,7 @@ This application demonstrates various modulation schemes.
 >
 >Bandwidth for *shift keyed* signals
 >
->![BW_{keying}=f_c + f_m - (f_c - f_m)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20f_c%20+%20f_m%20-%20(f_c%20-%20f_m))
+>![BW_{keying}=f_c + f_m - (f_c - f_m)](https://latex.codecogs.com/png.image?\dpi{110}%20\bg_white%20f_c%20+%20f_m%20-%20(BW_{keying}=f_c%20-%20f_m))
 
 
 ## Frequency Modulation
