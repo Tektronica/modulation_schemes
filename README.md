@@ -65,8 +65,7 @@ Which provides the general expression for a frequency modulated signal:
 
 ![m(t)=\left\{\begin{matrix}1 & 1 \\1 & 1 \\\end{matrix}\right.](https://latex.codecogs.com/svg.image?\bg_white&space;m(t)=\left\{\begin{matrix}1&space;&&space;1&space;\\1&space;&&space;1&space;&space;\\\end{matrix}\right.)
 
-![M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}\left\{\begin{matrix}\frac{4}{T}\tau-1&\tau<\frac{T}{2}\\-\frac{4}{T}\tau+3&\tau\geq\frac{T}{2}\\\end{matrix}\right.d\tau=\left\{\begin{matrix}\left(\frac{2}{T}x^2-x\right)\ &if\ x<\frac{T}{2}\\\left(-\frac{2}{T}x^2+3x\right)&if\ x\geq\frac{T}{2}\\\end{matrix}\right.](https://latex.codecogs.com/svg.latex?![M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}\left\{\begin{matrix}\frac{4}{T}\tau-1&\tau%3C\frac{T}{2}\\-\frac{4}{T}\tau+3&\tau\geq\frac{T}{2}\\\end{matrix}\right.d\tau=\left\{\begin{matrix}\left(\frac{2}{T}x^2-x\right)\%20&if\%20x%3C\frac{T}{2}\\\left(-\frac{2}{T}x^2+3x\right)&if\%20x\geq\frac{T}{2}\\\end{matrix}\right.])
-
+![m(t)=\left\{\begin{matrix}1&1\\1&1\\\end{matrix}\right.\](https://latex.codecogs.com/svg.image?\bg_white&space;M(t)&space;=&space;\int_{0}^{t}{m\left(\tau\right)&space;d\tau}&space;=&space;\left\{\begin{matrix}\frac{2}{T}x^2&space;-&space;x&space;&&space;x<T/2\\\&space;\frac{2}{T}x^2&space;&plus;&space;3x&space;&&space;x\geq&space;T/2\end{matrix}\right." title="\bg_white M(t) = \int_{0}^{t}{m\left(\tau\right) d\tau} = \left\{\begin{matrix}\frac{2}{T}x^2 - x & x<T/2\\\ \frac{2}{T}x^2 + 3x & x\geq T/2\end{matrix}\right.)
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
 ### Sawtooth
