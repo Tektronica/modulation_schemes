@@ -57,7 +57,7 @@ Which provides the general expression for a frequency modulated signal:
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
 ### Triangle
-![T = {period \ length}](https://latex.codecogs.com/svg.latex?T%20=%20{period%20\%20length})
+![T = \text{period length}](https://latex.codecogs.com/svg.latex?T%20=%20\text{period%20length})
 
 ![m\left(t\right)=\frac{2}{\pi}\sin^{-1}{\left[\sin{\left(\pi t\right)}\right]}](https://latex.codecogs.com/svg.latex?m\left(t\right)=\frac{2}{\pi}\sin^{-1}{\left[\sin{\left(\pi%20t\right)}\right]})
 
@@ -65,7 +65,8 @@ Which provides the general expression for a frequency modulated signal:
 
 ![m(t)=\left\{\begin{matrix}1 & 1 \\1 & 1 \\\end{matrix}\right.](https://latex.codecogs.com/svg.image?\bg_white&space;m(t)=\left\{\begin{matrix}1&space;&&space;1&space;\\1&space;&&space;1&space;&space;\\\end{matrix}\right.)
 
-![m(t)=\left\{\begin{matrix}1&1\\1&1\\\end{matrix}\right.\](https://latex.codecogs.com/svg.image?\bg_white&space;M(t)&space;=&space;\int_{0}^{t}{m\left(\tau\right)&space;d\tau}&space;=&space;\left\{\begin{matrix}\frac{2}{T}x^2&space;-&space;x&space;&&space;x<T/2\\\&space;\frac{2}{T}x^2&space;&plus;&space;3x&space;&&space;x\geq&space;T/2\end{matrix}\right." title="\bg_white M(t) = \int_{0}^{t}{m\left(\tau\right) d\tau} = \left\{\begin{matrix}\frac{2}{T}x^2 - x & x<T/2\\\ \frac{2}{T}x^2 + 3x & x\geq T/2\end{matrix}\right.)
+![M(t) = \int_{0}^{t}{m\left(\tau\right) d\tau} = \left\{\begin{matrix}\frac{2}{T}x^2 - x & x<T/2\\\ \frac{2}{T}x^2 + 3x & x\geq T/2\end{matrix}\right.](https://latex.codecogs.com/svg.image?%5Cbg_white%20M(t)%20=%20%5Cint_%7B0%7D%5E%7Bt%7D%7Bm%5Cleft(%5Ctau%5Cright)%20d%5Ctau%7D%20=%20%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%5Cfrac%7B2%7D%7BT%7Dx%5E2%20-%20x%20&%20x%3CT/2%5C%5C%5C%20%5Cfrac%7B2%7D%7BT%7Dx%5E2%20&plus;%203x%20&%20x%5Cgeq%20T/2%5Cend%7Bmatrix%7D%5Cright.)
+
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
 ### Sawtooth
