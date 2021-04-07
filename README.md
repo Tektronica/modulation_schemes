@@ -1,13 +1,14 @@
 # Modulation Schemes
 
 This application demonstrates various modulation schemes.
+
 ![](images/modulation_schemes_gui.jpg)
 
 
 ## The Signals
 ![c(t) = A_c cos (2 \pi f_c t)](https://latex.codecogs.com/svg.latex?c(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t))
 
-![m(t) = A_c cos (2 \pi f_c t + \phi_m)](https://latex.codecogs.com/svg.latex?m(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t%20+%20\phi_m))
+![m(t) = A_m cos (2 \pi f_m t + \varphi_m)](https://latex.codecogs.com/svg.latex?m(t)%20=%20A_c%20cos%20(2%20\pi%20f_c%20t%20+%20\phi_m))
 
 ## Amplitude Modulation
 ![s(t) = c(t) \times m(t)](https://latex.codecogs.com/svg.latex?s(t)%20=%20c(t)%20\times%20m(t))
@@ -19,17 +20,17 @@ This application demonstrates various modulation schemes.
 
 For a given frequency modulated signal, the frequency varies linearly with the modulating message:
 
-![s(t) = A_c cos ( \phi_i(t)) = A_c cos (2 \pi f(t)t+\theta_c)](https://latex.codecogs.com/svg.latex?s(t)%20=%20A_c%20cos%20(%20\phi_i(t))%20=%20A_c%20cos%20(2%20\pi%20f(t)t+\theta_c))
+![s(t) = A_c cos ( \varphi_i(t)) = A_c cos (2 \pi f(t)t+\theta_c)](https://latex.codecogs.com/svg.latex?s(t)%20=%20A_c%20cos%20(%20\varphi_i(t))%20=%20A_c%20cos%20(2%20\pi%20f(t)t+\theta_c))
 
 The instantaneous phase, is expressed as:
 
-![\boxed{\phi_i(t) = \omega(t)t} = 2 \pi f(t)t + \theta_c](https://latex.codecogs.com/svg.latex?\boxed{\phi_i(t)%20=%20\omega(t)t}%20=%202%20\pi%20f(t)t%20+%20\theta_c)
+![\boxed{\varphi_i(t) = \omega(t)t} = 2 \pi f(t)t + \theta_c](https://latex.codecogs.com/svg.latex?\boxed{\varphi_i(t)%20=%20\omega(t)t}%20=%202%20\pi%20f(t)t%20+%20\theta_c)
 
 Which is derived from the generalized definition for instantaneous frequency, which is the derivative of phase with respect to time:
 
-![f_i(t) \equiv \frac{1}{2 \pi} \frac{d \phi_i(t)}{dt}](https://latex.codecogs.com/svg.latex?f_i(t)%20\equiv%20\frac{1}{2%20\pi}%20\frac{d%20\phi_i(t)}{dt})
+![f_i(t) \equiv \frac{1}{2 \pi} \frac{d \varphi_i(t)}{dt}](https://latex.codecogs.com/svg.latex?f_i(t)%20\equiv%20\frac{1}{2%20\pi}%20\frac{d%20\varphi_i(t)}{dt})
 
-![\phi_i(t) \equiv 2 \pi \int_0^t{f_i(\tau) d\tau}](https://latex.codecogs.com/svg.latex?\phi_i(t)%20\equiv%202%20\pi%20\int_0^t{f_i(\tau)%20d\tau})
+![\varphi_i(t) \equiv 2 \pi \int_0^t{f_i(\tau) d\tau}](https://latex.codecogs.com/svg.latex?\varphi_i(t)%20\equiv%202%20\pi%20\int_0^t{f_i(\tau)%20d\tau})
 
 Thus, when evaluating causal signals with linearly varying frequency, such as:
 
@@ -37,7 +38,7 @@ Thus, when evaluating causal signals with linearly varying frequency, such as:
 
 The resultant modulated frequency based on the provided message signal with units of magnitude versus time must be converted to instantaneous phase versus time, which becomes:
 
-![\phi_i\left(t\right)=2\pi\int_{0}^{t}{f_i\left(\tau\right)}d\tau=2\pi\left(f_ct+k_f\int_{0}^{t}m\left(\tau\right)d\tau\right)](https://latex.codecogs.com/svg.latex?\phi_i\left(t\right)=2\pi\int_{0}^{t}{f_i\left(\tau\right)}d\tau=2\pi\left(f_ct+k_f\int_{0}^{t}m\left(\tau\right)d\tau\right))
+![\varphi_i\left(t\right)=2\pi\int_{0}^{t}{f_i\left(\tau\right)}d\tau=2\pi\left(f_ct+k_f\int_{0}^{t}m\left(\tau\right)d\tau\right)](https://latex.codecogs.com/svg.latex?\phi_i\left(t\right)=2\pi\int_{0}^{t}{f_i\left(\tau\right)}d\tau=2\pi\left(f_ct+k_f\int_{0}^{t}m\left(\tau\right)d\tau\right))
 
 Which provides the general expression for a frequency modulated signal:
 
@@ -67,9 +68,9 @@ Which provides the general expression for a frequency modulated signal:
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
 ### Sawtooth
-![x=x\ mod\ T](https://latex.codecogs.com/svg.latex?x=x\%20mod\%20T)
+![t = x \mod T](https://latex.codecogs.com/svg.latex?t%20=%20x%20\mod%20T)
 
-![M\left(t\right)=\int_{0}^{x}m\left(\tau\right)d\tau=\int_{0}^{x}{\frac{\tau}{T}d\tau}\ \ \ \ =\ \ \ \ \ \ \frac{1}{T}\left(x\ mod\ T\right)^2-\left(x\ mod\ T\right)](https://latex.codecogs.com/svg.latex?M\left(t\right)=\int_{0}^{x}m\left(\tau\right)d\tau=\int_{0}^{x}{\frac{\tau}{T}d\tau}\%20\%20\%20\%20=\%20\%20\%20\%20\%20\%20\frac{1}{T}\left(x\%20mod\%20T\right)^2-\left(x\%20mod\%20T\right))
+![M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}{\frac{\tau}{T}d\tau}=\frac{1}{T}\left(x\%20mod\%20T\right)^2-\left(x\%20mod\%20T\right)](https://latex.codecogs.com/svg.latex?M\left(t\right)=\int_{0}^{t}m\left(\tau\right)d\tau=\int_{0}^{t}{\frac{\tau}{T}d\tau}=\frac{1}{T}\left(x\%20mod\%20T\right)^2-\left(x\%20mod\%20T\right))
 
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
