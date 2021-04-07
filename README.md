@@ -63,9 +63,9 @@ Which provides the general expression for a frequency modulated signal:
 
 ![m\left(t\right)=\frac{4}{T}\left|\left(\left(x-\frac{T}{4}\right)\ mod\ T\right)-\frac{T}{2}\right|-1](https://latex.codecogs.com/svg.latex?m\left(t\right)=\frac{4}{T}\left|\left(\left(x-\frac{T}{4}\right)\%20mod\%20T\right)-\frac{T}{2}\right|-1)
 
-![m(t)=\left\{\begin{matrix}1 & 1 \\1 & 1 \\\end{matrix}\right.](https://latex.codecogs.com/svg.image?\bg_white&space;m(t)=\left\{\begin{matrix}1&space;&&space;1&space;\\1&space;&&space;1&space;&space;\\\end{matrix}\right.)
+![m(t) = \left\{\begin{matrix}\frac{4}{T}x - 1 & x<T/2\\\ -\frac{4}{T}x^2 + 3 & x\geq T/2\end{matrix}\right.](https://latex.codecogs.com/svg.image?%5Cbg_white%20m(t)%20=%20%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%5Cfrac%7B4%7D%7BT%7Dx%20-%201%20&%20x%3CT/2%5C%5C%5C%20-%5Cfrac%7B4%7D%7BT%7Dx%5E2%20&plus;%203%20&%20x%5Cgeq%20T/2%5Cend%7Bmatrix%7D%5Cright.)
 
-![M(t) = \int_{0}^{t}{m\left(\tau\right) d\tau} = \left\{\begin{matrix}\frac{2}{T}x^2 - x & x<T/2\\\ \frac{2}{T}x^2 + 3x & x\geq T/2\end{matrix}\right.](https://latex.codecogs.com/svg.image?%5Cbg_white%20M(t)%20=%20%5Cint_%7B0%7D%5E%7Bt%7D%7Bm%5Cleft(%5Ctau%5Cright)%20d%5Ctau%7D%20=%20%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%5Cfrac%7B2%7D%7BT%7Dx%5E2%20-%20x%20&%20x%3CT/2%5C%5C%5C%20%5Cfrac%7B2%7D%7BT%7Dx%5E2%20&plus;%203x%20&%20x%5Cgeq%20T/2%5Cend%7Bmatrix%7D%5Cright.)
+![M(t) = \int_{0}^{t}{m\left(\tau\right) d\tau} = \left\{\begin{matrix}\frac{2}{T}x^2 - x & x<T/2\\\ -\frac{2}{T}x^2 + 3x & x\geq T/2\end{matrix}\right.](https://latex.codecogs.com/svg.image?%5Cbg_white%20M(t)%20=%20%5Cint_%7B0%7D%5E%7Bt%7D%7Bm%5Cleft(%5Ctau%5Cright)%20d%5Ctau%7D%20=%20%5Cleft%5C%7B%5Cbegin%7Bmatrix%7D%5Cfrac%7B2%7D%7BT%7Dx%5E2%20-%20x%20&%20x%3CT/2%5C%5C%5C%20-%5Cfrac%7B2%7D%7BT%7Dx%5E2%20&plus;%203x%20&%20x%5Cgeq%20T/2%5Cend%7Bmatrix%7D%5Cright.)
 
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
@@ -79,9 +79,10 @@ Which provides the general expression for a frequency modulated signal:
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
 ### Square
-![m\left(t\right)=\left\{\begin{matrix}1&if\ x<\frac{T}{2}\\-1&if\ x\geq\frac{T}{2}\\\end{matrix}\right.](https://latex.codecogs.com/svg.latex?m\left(t\right)=\left\{\begin{matrix}1&if\%20x%3C\frac{T}{2}\\-1&if\%20x\geq\frac{T}{2}\\\end{matrix}\right.)
 
-![M\left(t\right)=\left\{\begin{matrix}x&if\ x<\frac{T}{2}\\-x&if\ x\geq\frac{T}{2}\\\end{matrix}\right.](https://latex.codecogs.com/svg.latex?M\left(t\right)=\left\{\begin{matrix}x&if\%20x%3C\frac{T}{2}\\-x&if\%20x\geq\frac{T}{2}\\\end{matrix}\right.)
+![m(t)=\begin{cases}1 & \text{ if } x<T/2 \\ -1 & \text{ if } x \geq T/2 \end{cases}](https://latex.codecogs.com/svg.image?%5Cbg_white%20m(t)=%5Cbegin%7Bcases%7D1&%20%5Ctext%7B%20if%20%7D%20x%3CT/2%5C%5C-1&%20%5Ctext%7B%20if%20%7D%20x%20%5Cgeq%20T/2%20%5Cend%7Bcases%7D)
+
+![M(t)=\int_{0}^{t}{m(\tau)d\tau}=\begin{cases} t & \text{ if } t<T/2 \\ -t & \text{ if } x \geq T/2 \end{cases}](https://latex.codecogs.com/svg.image?%5Cbg_white%20M(t)=%5Cint_%7B0%7D%5E%7Bt%7D%7Bm(%5Ctau)d%5Ctau%7D=%5Cbegin%7Bcases%7D%20t%20&%20%5Ctext%7B%20if%20%7D%20t%3CT/2%20%5C%5C%20-t%20&%20%5Ctext%7B%20if%20%7D%20x%20%5Cgeq%20T/2%20%5Cend%7Bcases%7D)
 
 **Note:** scaling to the appropriate time-base is required. If evaluating across N, divide M[n] by the sampling frequency.
 
