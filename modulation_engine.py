@@ -287,7 +287,7 @@ class Modulators:
             mt = (N_phase_shifted % T) / T
 
             # integral of sawtooth
-            scaling = 1/sample_rate
+            scaling = 1 / sample_rate
             mt_ = scaling * ((1/T) * (N_phase_shifted % T) ** 2 - (N_phase_shifted % T))
 
         # --------------------------------------------------------------------------------------------------------------
@@ -300,7 +300,10 @@ class Modulators:
 
             # integral of message signal (square wave integral is a triangle wave (modulo operation) with 180 phase lag)
             scaling = 1 / sample_rate
-            mt_ = scaling * (np.abs((N_phase_shifted - T / 2) % T - T / 2) - 1)
+            mt_ = scaling * np.where((N_phase_shifted % T) < T / 2, (N_phase_shifted % T), -(N_phase_shifted % T))
+
+            if modulation_type == 2:
+                mt = np.deg2rad(message_phase * mt)
 
         # --------------------------------------------------------------------------------------------------------------
         elif waveform_type == 'keying':
@@ -316,7 +319,6 @@ class Modulators:
 
             if digital_modulation[modulation_type] == 'psk':
                 mt = np.deg2rad(message_phase * mt)
-                mt_ = 1
 
         # --------------------------------------------------------------------------------------------------------------
         else:
@@ -335,6 +337,7 @@ class Modulators:
         elif modulation_type == 1:
             # frequency modulation -------------------------------------------------------------------------------------
             # In FM, the angle is directly proportional to the integral of m(t)
+            # https://math.stackexchange.com/q/178079
             # modulation index (mi) = (Am * kf) / fm
             # kf = (mi) * fm / Am
             st = Ac * np.sin(2 * np.pi * (fc * xt + (modulation_index * fm * mt_)))
@@ -348,7 +351,7 @@ class Modulators:
         elif modulation_type == 2:
             # phase modulation
             # In PM, the angle is directly proportional to m(t)
-            st = Ac * np.cos(2 * np.pi * fc * xt + modulation_index * mt)
+            st = Ac * np.sin(2 * np.pi * fc * xt + modulation_index * mt)
 
             if waveform_type != 'keying':
                 bw = 2 * fm * (modulation_index + 1)

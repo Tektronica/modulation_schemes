@@ -12,35 +12,42 @@ xt = N_range / Fs  # time base
 T = Fs / fm  # samples per period
 Am = 1  # amplitude
 
-WAVEFORM = 'sawtooth'
+WAVEFORM = 'square'
 
 if WAVEFORM == 'sine':
     print('SINE')
-    mt = 1 * np.cos(2 * np.pi * 1000 * xt)
-    mt_ = np.sin(np.pi * fm * xt) * np.cos(np.pi * fm * xt + fm)
+    T = Fs / fm  # sample length per period
+
+    # message signal
+    mt = np.sin(2 * np.pi * fm * xt + np.deg2rad(phase))
+
+    # integral of message signal
+    scaling = 1 / Fs
+    mt_ = (1 / (np.pi * fm)) * np.sin(np.pi * fm * N_range) * np.sin(np.pi * fm * N_range + phase)
 
 elif WAVEFORM == 'triangle':
     print('TRIANGLE')
     # https://en.wikipedia.org/wiki/Triangle_wave#Modulo_operation
+    T = Fs / fm  # sample length per period
 
-    # message signal (modulo operation) --------------------------------------------------------------------------------
+    # message signal (modulo operation)
     N_phase_shifted = N_range + int(T * phase / 360)
 
-    mt = ((4 * Am) / T) * np.abs(((N_phase_shifted - T / 4) % T) - T / 2) - 1
-    # Alternatively, the triangle wave is the absolute value of the sawtooth wave:
-    alternative_mt = 2 * np.abs(2*(N_phase_shifted / T - np.floor(0.5 + (N_phase_shifted / T))))-1
+    mt = (4 / T) * np.abs(((N_phase_shifted - T / 4) % T) - T / 2) - 1
 
-    # integral of triangle ---------------------------------------------------------------------------------------------
+    # integral of triangle
     integral_shift = N_phase_shifted + T / 4
-    print(fm, T)
+
 
     def first(x, T):
         t = (x % T)
         return 2 / T * t ** 2 - t
 
+
     def second(x, T):
         t = (x % T)
         return -2 / T * t ** 2 + 3 * t - T
+
 
     scaling = fm / 10000
     mt_ = scaling * np.where((integral_shift % T) < T / 2, first(integral_shift, T), second(integral_shift, T))
@@ -48,60 +55,54 @@ elif WAVEFORM == 'triangle':
     st = 1 * np.cos(2 * np.pi * 1000 * xt + 5 * mt_)
 
     # square wave ------------------------------------------------------------------------------------------------------
-    mt__ = np.where(((integral_shift - T/2) % T) < T / 2, 1, -1)
+    mt__ = np.where(((integral_shift - T / 2) % T) < T / 2, 1, -1)
 
     # scipy integration of triangle wave -------------------------------------------------------------------------------
-    scaling = fm / 10000
-    mt___ = scaling*integrate.cumtrapz(mt) - 1
+    scaling = 1 / Fs
+    mt___ = scaling * np.append(integrate.cumtrapz(mt), 0) - 1
 
 elif WAVEFORM == 'sawtooth':
-    # Sawtooth
+    print('SAWTOOTH')
     T = Fs / fm  # sample length per period
     N_phase_shifted = N_range + int(T * phase / 360)
 
     mt = (N_phase_shifted % T) / T
 
-    # integral of sawtooth ---------------------------------------------------------------------------------------------
-    integral_shift = N_phase_shifted + T / 4
-    print(fm, T)
-
-    def first(x, T):
-        t = (x % T)
-        return 2 / T * t ** 2 - t
-
-    # mt_ = 2 * (0.5 * mt ** 2)
-    scaling = 1/Fs
-    mt_ = scaling * N_phase_shifted * (N_phase_shifted - T)/T
+    # integral of sawtooth
+    scaling = fm / 10000
+    mt_ = scaling * ((1 / T) * (N_phase_shifted % T) ** 2 - (N_phase_shifted % T))
 
     # scipy integration of sawtooth wave -------------------------------------------------------------------------------
-    scaling = fm / 10000
-    mt___ = scaling * integrate.cumtrapz(mt) - 1
+    mt___ = scaling * np.append(integrate.cumtrapz(mt), 0) - 1
 
 
 elif WAVEFORM == 'square':
     print('SQUARE')
-    N_phase_shifted = N_range + int(T * phase / 360)
-
     mt = np.where((N_range % T) < T / 2, 1, 0)
 
     # integrate the modulating signal because frequency is the time derivative of phase
-    mt_ = (2 * mt - 1) * xt
+    scaling = 1 / Fs
+    x = (N_range % T)
+    mt_ = scaling * np.where((x < T / 2), x - 40, -x + 120) / 2
 
     # scipy integration of square wave -------------------------------------------------------------------------------
-    mt___ = integrate.cumtrapz(mt)
+    mt___ = scaling * np.append(integrate.cumtrapz(2 * mt - 1), 0)
 
 elif WAVEFORM == 'shift_keying':
     print('SHIFT KEYING')
-    N_phase_shifted = N_range + int(T * phase / 360)
+    digital_modulation = {0: 'ask', 1: 'fsk', 2: 'psk'}
+    T = Fs / fm
 
+    # message signal -------------------------------------------------------------------------------------------
     binary_message = np.round(np.random.rand(1, int(N / T)))[0]
     mt = np.repeat(binary_message, T)[:N]
-    scaling = fm / 10000
-    mt_ = scaling * mt * N_range
+
+    # frequency term is converted to an angle. Since discrete steps, there are only f_low (0) and f_high (1)
+    mt_ = (2 * mt - 1) * xt
 
     # scipy integration of square wave ---------------------------------------------------------------------------------
     scaling = fm / 10000
-    mt___ = scaling*integrate.cumtrapz(2*mt-1)
+    mt___ = scaling * np.append(integrate.cumtrapz(2 * mt - 1), 0)
 
 else:
     raise ValueError("Invalid waveform type selected!")
@@ -152,7 +153,7 @@ ax2 = figure.add_subplot(212)
 temporal, = ax1.plot(xt, mt, '-')  # Triangle
 temporal_2, = ax1.plot(xt, mt_, '--')  # integral of triangle
 # temporal_3, = ax1.plot(xt, mt__, '--')  # square
-# temporal_4, = ax1.plot(xt[1:], mt___, '.')  # scipy cumtrapz
+temporal_4, = ax1.plot(xt, mt___, '.')  # scipy cumtrapz
 # temporal_5, = ax1.plot(xt, st, '--')
 
 ax1.set_xlim((0, 4 / fm))

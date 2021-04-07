@@ -304,7 +304,7 @@ class PhaseModulatorPanel(wx.Panel):
             raise ValueError("Invalid modulation selected!")
 
         # PSK
-        if self.combo_waveform.GetSelection() == 4:
+        if self.combo_waveform.GetSelection() in (3, 4):
             if self.combo_modulation.GetSelection() == 2:
                 self.text_message_phase.SetValue('180')
             else:
