@@ -63,13 +63,15 @@ So when the frequency of FM signals is defined as the linear change with respect
 we must compute the instantaneous phase first before we can make any use of trigonometric functions. Again, this is because trigonometric functions accept only arguments of angular frequency, aka the **instantaneous phase** marking where along the the unit circle they are.
 
 ---
-Compute the instantaneous frequency of the general express
+Compute the instantaneous phase of the general expression
 
 ![\varphi_{i}\left(t\right)=2\pi\int_{0}^{t}{f_i\left(\tau\right)}d\tau=2\pi\left(f_ct+k_f\int_{0}^{t}m\left(\tau\right)d\tau\right)](https://latex.codecogs.com/svg.latex?\varphi_{i}\left(t\right)=2\pi\int_{0}^{t}{f_i\left(\tau\right)}d\tau=2\pi\left(f_ct+k_f\int_{0}^{t}m\left(\tau\right)d\tau\right))
 
-![s(t) = A_c cos ( \varphi_i(t)) = A_c cos (2 \pi f(t)t+\theta_c)](https://latex.codecogs.com/svg.latex?s(t)%20=%20A_c%20cos%20(%20\varphi_i(t))%20)
+Which defines the trigonometric argument for the frequency modulated waveform:
 
-![s(t) = A_c cos ( \varphi_i(t)) = A_c cos (2 \pi f(t)t+\theta_c)](https://latex.codecogs.com/svg.latex?\boxed{s(t)%20=%20A_c%20cos%20\left(2\pi%20f_ct+2\pi%20k_f\int_{0}^{t}m\left(\tau\right)d\tau\right)})
+![s(t) = A_c cos ( s(t)=A_c \cos\left(\varphi_{i}\left(t\right)\right)](https://latex.codecogs.com/svg.latex?s(t)%20=%20A_c%20cos%20(%20\varphi_i(t))%20)
+
+![s(t)=A_c \cos\left(2 \pi f_ct + 2\pi k_f \int_{0}^{t}{m\left(\tau\right)d\tau}\right)](https://latex.codecogs.com/svg.latex?\boxed{s(t)%20=%20A_c%20cos%20\left(2\pi%20f_ct+2\pi%20k_f\int_{0}^{t}m\left(\tau\right)d\tau\right)})
   
 ## Integration  
 ### Cosine  
