@@ -18,7 +18,11 @@ This application demonstrates various modulation schemes.
 ![s(t) = cos (2 \pi f_c + k_p m(t))](https://latex.codecogs.com/svg.latex?s(t)%20=%20cos%20(2%20\pi%20f_c%20+%20k_p%20m(t)))  
   
 ## Frequency Modulation  
-  
+
+![s(t)=A_c \cos\left(2 \pi f_ct + 2\pi k_f \int_{0}^{t}{m\left(\tau\right)d\tau}\right)](https://latex.codecogs.com/svg.latex?s(t)%20=%20A_c%20cos%20\left(2\pi%20f_ct+2\pi%20k_f\int_{0}^{t}m\left(\tau\right)d\tau\right))
+
+Let's understand why...
+
 For a given frequency modulated signal, the frequency is directly proportional to the magnitude of the modulating message such that any change in modulation has a linear effect on the resulting signal frequency. To show this, the instantaneous frequency is expressed as:
 
 ![f_i(t) = f_c + k_f m(t)](https://latex.codecogs.com/svg.latex?f_i(t)%20=%20f_c%20+%20k_f%20m(t))
