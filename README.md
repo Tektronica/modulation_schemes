@@ -53,7 +53,7 @@ However, what really has happened is we have unconsciously computed the instanta
 
 ---
 
-To understand instantaneous phase more, we first define a generalized expression:
+Instantaneous phase (and conversely instantaneous frequency) aren't typically discussed outside of signal processing since the need for phase or frequency modulation requires explicit definition for these terms. Nonetheless, while these terms impose greater clarity on the mechanism behind modulation, by extension, so too our familiar trigonometric operation. To understand instantaneous phase more, we first define a generalized expression:
 
 ![\varphi_i(t) \equiv 2 \pi \int_0^t{f_i(\tau) d\tau}](https://latex.codecogs.com/svg.latex?\varphi_i(t)%20\equiv%202%20\pi%20\int_0^t{f_i(\tau)%20d\tau})
 
