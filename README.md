@@ -39,6 +39,10 @@ For a given frequency modulated signal, the frequency is directly proportional t
 
 ![f_i(t) = f_c + k_f m(t)](https://latex.codecogs.com/svg.latex?f_i(t)%20=%20f_c%20+%20k_f%20m(t))
 
+In musical terms, the instaneous frequency is merely the representation of tones we hear. The pitch of one's voice, for instance, or the note of a tuning fork. As the number of these tones we hear increase, so does the complexity of our equation describing the instantaneous frequency. In other words, the instantaneous frequency describes the mish-mash of frequencies captured by your ears, or say a measurement.
+
+> In the field of photonics, lasers are used to create and transmit mono-tone (single-frequency) signals. In more complex cases that are more common, multimode lasers are also used, which require a bit more finesse in identifying the multiple frequencies and their various amplitudes composing the signal. In pulsed or chirped optical signal generators, instantaneous frequency can vary with time. That is, a frequency modulation.
+
 Let's suppose for a moment the modulating signal was zero. The instantaneous frequency would be expressed solely by the carrier frequency:
 
 ![f_i(t) = f_c](https://latex.codecogs.com/svg.latex?f_i(t)%20=%20f_c)
@@ -53,11 +57,11 @@ However, what really has happened is we have unconsciously computed the instanta
 
 ---
 
-Instantaneous phase (and conversely instantaneous frequency) are not typically discussed outside of signal processing. However, the need for phase or frequency modulation requires explicit definition for these terms. While these terms may impose greater clarity on the mechanism behind modulation, by extension, so too our familiar trigonometric operation. To understand instantaneous phase more, we first define a generalized expression:
+While instantaneous phase (and conversely instantaneous frequency) are not generally covered, the understanding of phase or frequency modulation requires explicit definition of these terms. As we explore these definitions further, our familiar understanding of trigonometric operation will also benefit from this imbued clarity. So, to understand instantaneous phase more, we first begin by defining a generalized expression:
 
 ![\varphi_i(t) \equiv 2 \pi \int_0^t{f_i(\tau) d\tau}](https://latex.codecogs.com/svg.latex?\varphi_i(t)%20\equiv%202%20\pi%20\int_0^t{f_i(\tau)%20d\tau})
 
-We compute the sum of our frequency over a period of time, in this case, t, and then map the result to the unit circle, which has a circumference of 2π.
+We compute the integral of our instantaneous frequency to arrive at our instantaneous phase, which is merely the sum of our frequency over a period of time, in this case, t, and then mapped to unit circle, which has a circumference of 2π.
 
 Since our frequency is constant (scalar), the result is straightforward:
 
