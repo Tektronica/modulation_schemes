@@ -3,5 +3,5 @@
 
 @echo off
 SET PYTHONIOENCODING=UTF-8
-python gui_panel_phase_modulation.py %*
+python gui_panel_modulation.py %*
 pause
