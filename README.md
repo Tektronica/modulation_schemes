@@ -61,7 +61,7 @@ While instantaneous phase (and conversely instantaneous frequency) are not gener
 
 ![\varphi_i(t) \equiv 2 \pi \int_0^t{f_i(\tau) d\tau}](https://latex.codecogs.com/svg.latex?\varphi_i(t)%20\equiv%202%20\pi%20\int_0^t{f_i(\tau)%20d\tau})
 
-We compute the integral of our instantaneous frequency to arrive at our instantaneous phase, which is merely the sum of our frequency over a period of time, in this case, t, and then mapped to unit circle, which has a circumference of 2π.
+We compute the integral of our instantaneous frequency to arrive at our instantaneous phase, which is merely the sum of our frequency term over a period of time, in this case, t, and then mapped to the unit circle, which has a circumference of 2π.
 
 Since our frequency is constant (scalar), the result is straightforward:
 
@@ -74,7 +74,7 @@ Recall that our frequency has units of inverse time equal to the period of one t
 
 What has happened is we have defined a ratio which marks our traversal around the unit circle in *increments of phase*. So when t=0, our **instantaneous phase** is 0. When our watches have progressed to 50% of our period, our **instantaneous phase** is  π (or 180°) or half the unit circle.
 
-Sinusoidal functions, such as cosine and sine, are trigonometric functions which only accept arguments of **instantaneous phase** because it *marks where along the unit circle they are*.
+Sinusoidal functions, such as cosine and sine, are trigonometric functions which only accept arguments of **instantaneous phase** because it *marks where along the unit circle they currently are*. Much like a clock on the wall, to know our time, we must know the position of the clock hands.
 
 So when the frequency of FM signals is defined as the linear change with respect to the modulated amplitude - that is,
 
